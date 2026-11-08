@@ -1,0 +1,25 @@
+spring:
+  application:
+    name: anhandui-backend
+  datasource:
+    url: jdbc:sqlite:${CONDO_DB_PATH:data/condominio.db}
+    driver-class-name: org.sqlite.JDBC
+  jpa:
+    database-platform: org.hibernate.community.dialect.SQLiteDialect
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: false
+  servlet:
+    multipart:
+      max-file-size: 20MB
+      max-request-size: 20MB
+
+server:
+  port: 8080
+
+anhandui:
+  storage:
+    path: ${CONDO_STORAGE_PATH:data/documentos}

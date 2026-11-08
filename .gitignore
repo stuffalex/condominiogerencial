@@ -1,0 +1,22 @@
+# Build artifacts
+**/target/
+**/dist/
+**/node_modules/
+**/.angular/
+
+# IDE files
+**/.idea/
+**/*.iml
+**/.vscode/
+**/*.classpath
+**/*.project
+**/*.settings/
+
+# Runtime data
+data/*.db
+data/documentos/*
+!data/documentos/.gitkeep
+
+# System files
+.DS_Store
+Thumbs.db
