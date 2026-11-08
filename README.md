@@ -12,7 +12,7 @@ Sistema de gestão condominial desenvolvido sob medida para a realidade dos **Bl
    - [Como Rodar no Linux (Sem abrir como arquivo de texto)](#como-rodar-no-linux-sem-abrir-como-arquivo-de-texto)
    - [Como Rodar no Windows](#como-rodar-no-windows)
 4. [Configuração de Ambiente (.env)](#-configuração-de-ambiente-env)
-5. [Como Subir para o Git Remoto (GitHub / GitLab)](#-como-subir-para-o-git-remoto-github--gitlab)
+5. [Como Baixar e Executar o Projeto (Download / Clone)](#-como-baixar-e-executar-o-projeto-download--clone)
 6. [Arquitetura Técnica & Qualidade](#-arquitetura-técnica--qualidade)
 7. [Backup e Segurança](#-backup-e-segurança)
 
@@ -141,33 +141,22 @@ CONDO_STORAGE_PATH=data/documentos
 
 ---
 
-## 🌐 Como Subir para o Git Remoto (GitHub / GitLab)
+## 📥 Como Baixar e Executar o Projeto (Download / Clone)
 
-O código já está inicializado e com **todos os commits atômicos gravados** localmente na branch `alexya/feature-gestao-condominio`.
+Para clonar este repositório e executar em seu computador ou preparar um pendrive portátil:
 
-Para enviar este repositório para o seu GitHub ou GitLab, siga os 3 passos simples abaixo:
-
-### Passo 1: Crie o repositório na nuvem
-Acesse o [GitHub](https://github.com/new) ou GitLab e crie um novo repositório vazio (exemplo: com o nome `residencial-anhandui`). Não marque a opção de inicializar com README ou .gitignore (eles já existem aqui).
-
-### Passo 2: Vincule a URL remota no terminal
-Abra o terminal na pasta do projeto e adicione a URL do seu repositório:
 ```bash
-cd /home/alexya/Documentos/Projetos/Pessoal/residencial-anhandui
+# 1. Clone o repositório oficial
+git clone https://github.com/stuffalex/condominiogerencial.git
 
-# Adicione a URL do seu GitHub (substitua pelo seu link real):
-git remote add origin https://github.com/SEU-USUARIO/residencial-anhandui.git
+# 2. Acesse a pasta do projeto
+cd condominiogerencial
 ```
 
-### Passo 3: Envie o código (Push)
-```bash
-# Subir a branch de desenvolvimento da feature:
-git push -u origin alexya/feature-gestao-condominio
-
-# Se desejar criar ou atualizar a branch main:
-git checkout -b main
-git push -u origin main
-```
+### 🚀 Executando após o download:
+- **No Linux**: Duplo clique em `INICIAR_LINUX.sh` (ou clique com o botão direito -> *"Executar como um Programa"*).
+- **No Windows**: Duplo clique em `INICIAR_WINDOWS.bat`.
+- **Acesso Web Automático**: O navegador abrirá imediatamente em 👉 **[http://localhost:8080](http://localhost:8080)**.
 
 ---
 
