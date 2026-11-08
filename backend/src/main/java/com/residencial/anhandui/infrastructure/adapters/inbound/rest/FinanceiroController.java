@@ -1,5 +1,6 @@
 package com.residencial.anhandui.infrastructure.adapters.inbound.rest;
 
+import com.residencial.anhandui.domain.exception.DomainException;
 import com.residencial.anhandui.domain.exception.EntidadeNaoEncontradaException;
 import com.residencial.anhandui.domain.model.Apartamento;
 import com.residencial.anhandui.domain.model.BalanceteMensal;
@@ -7,10 +8,13 @@ import com.residencial.anhandui.domain.model.CotaCondominial;
 import com.residencial.anhandui.domain.model.PagamentoDinheiro;
 import com.residencial.anhandui.domain.ports.output.IApartamentoRepositoryPort;
 import com.residencial.anhandui.domain.ports.output.ICotaRepositoryPort;
+import com.residencial.anhandui.domain.ports.output.IDocumentoStoragePort;
 import com.residencial.anhandui.domain.ports.output.IPagamentoRepositoryPort;
 import com.residencial.anhandui.domain.ports.output.IPdfGeneratorPort;
 import com.residencial.anhandui.domain.usecase.GerarBalanceteMensalUseCase;
 import com.residencial.anhandui.domain.usecase.RegistrarPagamentoDinheiroUseCase;
+import com.residencial.anhandui.domain.usecase.RegistrarPagamentoPeriodoUseCase;
+import com.residencial.anhandui.infrastructure.adapters.inbound.rest.dto.RegistrarPagamentoPeriodoRequest;
 import com.residencial.anhandui.infrastructure.adapters.inbound.rest.dto.RegistrarPagamentoRequest;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -23,12 +27,16 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.YearMonth;
+import java.time.format.TextStyle;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.UUID;
 
 @RestController
@@ -40,20 +48,26 @@ public class FinanceiroController {
     private final IApartamentoRepositoryPort apartamentoRepository;
     private final IPagamentoRepositoryPort pagamentoRepository;
     private final RegistrarPagamentoDinheiroUseCase registrarPagamentoUseCase;
+    private final RegistrarPagamentoPeriodoUseCase registrarPagamentoPeriodoUseCase;
     private final GerarBalanceteMensalUseCase gerarBalanceteUseCase;
+    private final IDocumentoStoragePort storagePort;
     private final IPdfGeneratorPort pdfGenerator;
 
     public FinanceiroController(ICotaRepositoryPort cotaRepository,
                                 IApartamentoRepositoryPort apartamentoRepository,
                                 IPagamentoRepositoryPort pagamentoRepository,
                                 RegistrarPagamentoDinheiroUseCase registrarPagamentoUseCase,
+                                RegistrarPagamentoPeriodoUseCase registrarPagamentoPeriodoUseCase,
                                 GerarBalanceteMensalUseCase gerarBalanceteUseCase,
+                                IDocumentoStoragePort storagePort,
                                 IPdfGeneratorPort pdfGenerator) {
         this.cotaRepository = cotaRepository;
         this.apartamentoRepository = apartamentoRepository;
         this.pagamentoRepository = pagamentoRepository;
         this.registrarPagamentoUseCase = registrarPagamentoUseCase;
+        this.registrarPagamentoPeriodoUseCase = registrarPagamentoPeriodoUseCase;
         this.gerarBalanceteUseCase = gerarBalanceteUseCase;
+        this.storagePort = storagePort;
         this.pdfGenerator = pdfGenerator;
     }
 
@@ -62,7 +76,6 @@ public class FinanceiroController {
         String ref = (anoMes != null && !anoMes.isBlank()) ? anoMes : YearMonth.now().toString();
         List<CotaCondominial> cotas = cotaRepository.listarPorAnoMes(ref);
 
-        // Se o mês ainda não foi gerado, gera sob demanda
         if (cotas.isEmpty()) {
             YearMonth ym = YearMonth.parse(ref);
             LocalDate venc = ym.atDay(10);
@@ -94,6 +107,63 @@ public class FinanceiroController {
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + filename + "\"")
                 .contentType(MediaType.APPLICATION_PDF)
                 .body(resultado.reciboPdfBytes());
+    }
+
+    @PostMapping("/pagamentos/periodo")
+    public ResponseEntity<byte[]> registrarPagamentoPeriodo(@RequestBody RegistrarPagamentoPeriodoRequest request) {
+        RegistrarPagamentoPeriodoUseCase.ResultadoPeriodo resultado = registrarPagamentoPeriodoUseCase.executar(
+                request.apartamentoId(),
+                request.anoMesInicio(),
+                request.anoMesFim(),
+                request.valorPorMes(),
+                request.recebidoPor(),
+                request.observacao()
+        );
+
+        String filename = String.format("recibo-consolidado-%s-%s-a-%s.pdf",
+                resultado.apartamento().getNumero(), request.anoMesInicio(), request.anoMesFim());
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + filename + "\"")
+                .contentType(MediaType.APPLICATION_PDF)
+                .body(resultado.reciboPdfBytes());
+    }
+
+    @PostMapping(value = "/cotas/{cotaId}/recibo-fisico", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<CotaCondominial> uploadReciboFisico(
+            @PathVariable UUID cotaId,
+            @RequestParam("arquivo") MultipartFile arquivo) throws IOException {
+
+        CotaCondominial cota = cotaRepository.buscarPorId(cotaId)
+                .orElseThrow(() -> new EntidadeNaoEncontradaException("Cota condominial não encontrada para o ID: " + cotaId));
+
+        if (arquivo.isEmpty()) {
+            throw new DomainException("O arquivo de comprovante não pode estar vazio.");
+        }
+
+        String caminhoRelativo = storagePort.salvarArquivo(arquivo.getOriginalFilename(), arquivo.getBytes());
+        cota.setComprovanteFisicoArquivo(caminhoRelativo);
+        CotaCondominial salva = cotaRepository.salvar(cota);
+
+        return ResponseEntity.ok(salva);
+    }
+
+    @GetMapping("/cotas/{cotaId}/recibo-fisico")
+    public ResponseEntity<byte[]> downloadReciboFisico(@PathVariable UUID cotaId) {
+        CotaCondominial cota = cotaRepository.buscarPorId(cotaId)
+                .orElseThrow(() -> new EntidadeNaoEncontradaException("Cota não encontrada"));
+
+        if (!cota.isPossuiComprovanteFisico()) {
+            throw new DomainException("Esta cota não possui comprovante físico anexado.");
+        }
+
+        byte[] conteudo = storagePort.lerArquivo(cota.getComprovanteFisicoArquivo());
+        String nome = "comprovante-fisico-" + cota.getAnoMes() + "-" + cota.getComprovanteFisicoArquivo();
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + nome + "\"")
+                .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                .body(conteudo);
     }
 
     @GetMapping("/pagamentos/{pagamentoId}/recibo")
@@ -134,8 +204,16 @@ public class FinanceiroController {
         String ref = (anoMes != null && !anoMes.isBlank()) ? anoMes : YearMonth.now().toString();
         GerarBalanceteMensalUseCase.ResultadoBalancete res = gerarBalanceteUseCase.executar(ref, despesas);
 
+        String nomeMes = "mes";
+        try {
+            YearMonth ym = YearMonth.parse(ref);
+            nomeMes = ym.getMonth().getDisplayName(TextStyle.FULL, new Locale("pt", "BR")).toLowerCase();
+        } catch (Exception ignored) {}
+
+        String filename = String.format("balancete-%s-%s-Residencial-Anhandui.pdf", ref, nomeMes);
+
         return ResponseEntity.ok()
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"balancete-" + ref + ".pdf\"")
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + filename + "\"")
                 .contentType(MediaType.APPLICATION_PDF)
                 .body(res.pdfBytes());
     }

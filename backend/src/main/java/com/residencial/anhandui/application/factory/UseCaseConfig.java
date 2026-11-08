@@ -9,6 +9,7 @@ import com.residencial.anhandui.domain.usecase.EmitirDndUseCase;
 import com.residencial.anhandui.domain.usecase.GerarBalanceteMensalUseCase;
 import com.residencial.anhandui.domain.usecase.InicializarCondominioPadraoUseCase;
 import com.residencial.anhandui.domain.usecase.RegistrarPagamentoDinheiroUseCase;
+import com.residencial.anhandui.domain.usecase.RegistrarPagamentoPeriodoUseCase;
 import com.residencial.anhandui.domain.usecase.SimularPlanoMuroUseCase;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Bean;
@@ -31,6 +32,15 @@ public class UseCaseConfig {
             IPagamentoRepositoryPort pagamentoRepository,
             IPdfGeneratorPort pdfGenerator) {
         return new RegistrarPagamentoDinheiroUseCase(cotaRepository, apartamentoRepository, pagamentoRepository, pdfGenerator);
+    }
+
+    @Bean
+    public RegistrarPagamentoPeriodoUseCase registrarPagamentoPeriodoUseCase(
+            IApartamentoRepositoryPort apartamentoRepository,
+            ICotaRepositoryPort cotaRepository,
+            IPagamentoRepositoryPort pagamentoRepository,
+            IPdfGeneratorPort pdfGenerator) {
+        return new RegistrarPagamentoPeriodoUseCase(apartamentoRepository, cotaRepository, pagamentoRepository, pdfGenerator);
     }
 
     @Bean

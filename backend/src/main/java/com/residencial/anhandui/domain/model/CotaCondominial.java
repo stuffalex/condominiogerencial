@@ -18,6 +18,7 @@ public class CotaCondominial implements Serializable {
     private LocalDate dataVencimento;
     private StatusCota status;
     private LocalDate dataPagamento;
+    private String comprovanteFisicoArquivo;
 
     public CotaCondominial() {
     }
@@ -56,6 +57,10 @@ public class CotaCondominial implements Serializable {
     public void marcarComoPaga(LocalDate dataPagamento) {
         this.status = StatusCota.PAGA;
         this.dataPagamento = dataPagamento != null ? dataPagamento : LocalDate.now();
+    }
+
+    public boolean isPossuiComprovanteFisico() {
+        return comprovanteFisicoArquivo != null && !comprovanteFisicoArquivo.isBlank();
     }
 
     public UUID getId() {
@@ -112,6 +117,14 @@ public class CotaCondominial implements Serializable {
 
     public void setDataPagamento(LocalDate dataPagamento) {
         this.dataPagamento = dataPagamento;
+    }
+
+    public String getComprovanteFisicoArquivo() {
+        return comprovanteFisicoArquivo;
+    }
+
+    public void setComprovanteFisicoArquivo(String comprovanteFisicoArquivo) {
+        this.comprovanteFisicoArquivo = comprovanteFisicoArquivo;
     }
 
     @Override

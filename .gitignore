@@ -12,7 +12,9 @@
 **/*.project
 **/*.settings/
 
-# Runtime data
+# Runtime data & Local Environment
+.env
+.env.local
 data/*.db
 data/documentos/*
 !data/documentos/.gitkeep

@@ -46,6 +46,11 @@
           <span>📋</span> Balancete & Prestação
         </a>
       </li>
+      <li class="sidebar-item">
+        <a class="sidebar-link" (click)="abrirModalPeriodo()" style="cursor: pointer;">
+          <span>🗓️</span> Quitar por Período
+        </a>
+      </li>
     </ul>
 
     <div class="sidebar-footer">
@@ -64,12 +69,15 @@
       </div>
 
       <div class="topbar-actions">
-        <div style="display: flex; align-items: center; gap: 8px;">
-          <label style="font-size: 0.85rem; font-weight: 600; color: #475569;">Competência:</label>
-          <input type="month" class="form-control" style="width: 160px; padding: 6px 10px;"
+        <div class="input-competencia-container">
+          <span style="font-size: 0.9rem; font-weight: 700; color: #1e3a8a;">📅 Mês Referência:</span>
+          <input type="month" class="input-competencia"
                  [ngModel]="anoMesSelecionado()"
                  (ngModelChange)="anoMesSelecionado.set($event); carregarCotas(); carregarBalancete();">
         </div>
+        <button class="btn btn-primary btn-sm" (click)="abrirModalPeriodo()" title="Quitar Múltiplos Meses de uma Unidade">
+          🗓️ Quitação por Período
+        </button>
         <button class="btn btn-outline btn-sm" (click)="carregarDados()" title="Recarregar Dados">
           🔄 Atualizar
         </button>
@@ -298,10 +306,15 @@
             <div>
               <h2 class="card-title">Fluxo de Caixa em Dinheiro & Recibos Físicos</h2>
               <p style="color: var(--text-muted); font-size: 0.85rem;">
-                Registro transparente dos pagamentos recebidos em mãos com emissão imediata do Recibo em 2 vias (via morador e canhoto do condomínio).
+                Registro transparente dos pagamentos recebidos em mãos com emissão imediata do Recibo em 2 vias e controle de recibos de papel digitalizados.
               </p>
             </div>
-            <span class="badge badge-success">Recibo em 2 Vias (OpenPDF)</span>
+            <div style="display: flex; gap: 8px;">
+              <button class="btn btn-primary btn-sm" (click)="abrirModalPeriodo()">
+                🗓️ Quitação por Período (Múltiplos Meses)
+              </button>
+              <span class="badge badge-success">Recibo em 2 Vias (OpenPDF)</span>
+            </div>
           </div>
 
           <div class="table-responsive">
@@ -314,7 +327,8 @@
                   <th>Competência</th>
                   <th>Valor</th>
                   <th>Status</th>
-                  <th>Ação</th>
+                  <th>Recibo Físico (Papel)</th>
+                  <th>Ações do Caixa</th>
                 </tr>
               </thead>
               <tbody>
@@ -331,14 +345,36 @@
                     </span>
                   </td>
                   <td>
-                    <button *ngIf="obterCotaApartamento(apto.id)?.status !== 'PAGA'"
-                            class="btn btn-success btn-sm"
-                            (click)="abrirModalPagamento(apto)">
-                      💵 Receber Dinheiro
-                    </button>
-                    <span *ngIf="obterCotaApartamento(apto.id)?.status === 'PAGA'" style="color: var(--success); font-weight: 600; font-size: 0.85rem;">
-                      ✓ Recibo Emitido
-                    </span>
+                    <ng-container *ngIf="obterCotaApartamento(apto.id) as cota">
+                      <div *ngIf="cota.comprovanteFisicoArquivo" style="display: flex; align-items: center; gap: 6px;">
+                        <button class="btn btn-outline btn-sm" style="color: #059669; border-color: #10b981;" (click)="baixarReciboFisico(cota)" title="Baixar comprovante físico digitalizado">
+                          ⬇️ Ver Recibo
+                        </button>
+                        <button class="btn btn-outline btn-sm" (click)="abrirModalUploadReciboFisico(cota, apto)" title="Substituir arquivo físico">
+                          🔄
+                        </button>
+                      </div>
+                      <div *ngIf="!cota.comprovanteFisicoArquivo">
+                        <button class="btn btn-outline btn-sm" (click)="abrirModalUploadReciboFisico(cota, apto)">
+                          📎 Anexar Recibo
+                        </button>
+                      </div>
+                    </ng-container>
+                  </td>
+                  <td>
+                    <div style="display: flex; gap: 6px; align-items: center;">
+                      <button *ngIf="obterCotaApartamento(apto.id)?.status !== 'PAGA'"
+                              class="btn btn-success btn-sm"
+                              (click)="abrirModalPagamento(apto)">
+                        💵 Receber R$ 180
+                      </button>
+                      <button class="btn btn-outline btn-sm" (click)="abrirModalPeriodo(apto)" title="Quitar vários meses deste apartamento">
+                        🗓️ Período
+                      </button>
+                      <span *ngIf="obterCotaApartamento(apto.id)?.status === 'PAGA'" style="color: var(--success); font-weight: 600; font-size: 0.85rem;">
+                        ✓ Quitado
+                      </span>
+                    </div>
                   </td>
                 </tr>
               </tbody>
@@ -746,6 +782,104 @@
     <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 24px;">
       <button class="btn btn-outline" (click)="modalUploadAberto.set(false)">Cancelar</button>
       <button class="btn btn-primary" (click)="enviarDocumento()">Salvar e Arquivar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: QUITAÇÃO POR PERÍODO (MÚLTIPLOS MESES) -->
+<div class="modal-overlay" *ngIf="modalPeriodoAberto()">
+  <div class="modal-content" style="max-width: 600px;">
+    <div class="modal-header">
+      <h3 class="modal-title">🗓️ Quitação por Período (Múltiplos Meses)</h3>
+      <button class="close-btn" (click)="fecharModalPeriodo()">✕</button>
+    </div>
+
+    <div style="background: #eff6ff; border-left: 4px solid #3b82f6; padding: 12px; border-radius: 6px; margin-bottom: 16px; font-size: 0.875rem; color: #1e3a8a;">
+      Permite quitar um intervalo de meses para um apartamento de uma só vez (ex: de um mês a outro), emitindo um <strong>Recibo Oficial Consolidado em 2 vias</strong> com todas as cotas discriminadas.
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Apartamento / Unidade:</label>
+      <select class="form-control" [(ngModel)]="periodoAptoId">
+        <option *ngFor="let apto of apartamentos()" [value]="apto.id">
+          {{ apto.bloco === 'BLOCO_G' ? 'Bloco G' : 'Bloco H' }} - Apto {{ apto.numero }} (Morador: {{ apto.morador.nome }})
+        </option>
+      </select>
+    </div>
+
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
+      <div class="form-group">
+        <label class="form-label">Mês Inicial (De):</label>
+        <input type="month" class="form-control" [(ngModel)]="periodoMesInicio">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Mês Final (Até):</label>
+        <input type="month" class="form-control" [(ngModel)]="periodoMesFim">
+      </div>
+    </div>
+
+    <div style="background: #f8fafc; border: 1px dashed var(--border); padding: 14px; border-radius: 6px; margin-bottom: 16px;">
+      <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
+        <span style="color: var(--text-muted); font-size: 0.9rem;">Total de Meses no Intervalo:</span>
+        <strong>{{ periodoCalculoMeses }} meses</strong>
+      </div>
+      <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
+        <span style="color: var(--text-muted); font-size: 0.9rem;">Valor Base por Mês:</span>
+        <span>R$ {{ periodoValorPorMes | number:'1.2-2' }}</span>
+      </div>
+      <div style="display: flex; justify-content: space-between; border-top: 1px solid var(--border); padding-top: 6px;">
+        <span style="font-weight: 700; color: var(--text-main);">Valor Total a Receber:</span>
+        <strong style="color: #059669; font-size: 1.25rem;">R$ {{ periodoValorTotal | number:'1.2-2' }}</strong>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Recebido por:</label>
+      <input type="text" class="form-control" [(ngModel)]="periodoRecebidoPor">
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Observação / Justificativa no Recibo:</label>
+      <input type="text" class="form-control" [(ngModel)]="periodoObservacao">
+    </div>
+
+    <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 24px;">
+      <button class="btn btn-outline" (click)="fecharModalPeriodo()">Cancelar</button>
+      <button class="btn btn-success" (click)="confirmarPagamentoPeriodo()" [disabled]="periodoCalculoMeses <= 0">
+        🖨️ Quitar {{ periodoCalculoMeses }} Meses e Baixar Recibo (2 Vias)
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: UPLOAD DE RECIBO FÍSICO INDEPENDENTE -->
+<div class="modal-overlay" *ngIf="modalUploadReciboFisicoAberto()">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3 class="modal-title">📎 Anexar Recibo Físico Digitalizado</h3>
+      <button class="close-btn" (click)="fecharModalUploadReciboFisico()">✕</button>
+    </div>
+
+    <div style="background: #f8fafc; padding: 12px; border-radius: 6px; margin-bottom: 16px; font-size: 0.875rem;">
+      <div>Unidade: <strong>{{ aptoSelecionadoParaRecibo?.bloco === 'BLOCO_G' ? 'Bloco G' : 'Bloco H' }} - Apto {{ aptoSelecionadoParaRecibo?.numero }}</strong></div>
+      <div>Competência: <strong>{{ cotaSelecionadaParaRecibo?.anoMes }}</strong></div>
+      <div *ngIf="cotaSelecionadaParaRecibo?.comprovanteFisicoArquivo" style="color: #059669; margin-top: 4px;">
+        Arquivo atual anexado: <em>{{ cotaSelecionadaParaRecibo?.comprovanteFisicoArquivo }}</em>
+      </div>
+    </div>
+
+    <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 16px;">
+      Suba uma foto (JPG, PNG) ou PDF do comprovante físico de papel entregue ou assinado. Esta opção é 100% independente do status contábil.
+    </p>
+
+    <div class="form-group">
+      <label class="form-label">Selecione a Foto ou PDF do Recibo de Papel:</label>
+      <input type="file" class="form-control" accept="image/*,.pdf" (change)="onArquivoReciboFisicoSelecionado($event)">
+    </div>
+
+    <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 24px;">
+      <button class="btn btn-outline" (click)="fecharModalUploadReciboFisico()">Cancelar</button>
+      <button class="btn btn-primary" (click)="enviarReciboFisico()">Salvar Recibo Físico</button>
     </div>
   </div>
 </div>

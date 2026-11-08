@@ -19,11 +19,14 @@ import org.springframework.stereotype.Component;
 
 import java.awt.Color;
 import java.io.ByteArrayOutputStream;
-import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
+import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
+import java.time.format.TextStyle;
+import java.util.List;
 import java.util.Locale;
+import java.util.stream.Collectors;
 
 @Component
 public class OpenPdfGeneratorAdapter implements IPdfGeneratorPort {
@@ -50,7 +53,7 @@ public class OpenPdfGeneratorAdapter implements IPdfGeneratorPort {
             document.open();
 
             // 1ª VIA: MORADOR
-            adicionarViaRecibo(document, "1ª VIA - MORADOR / CONDÔMINO", pagamento, apartamento, cota);
+            adicionarViaRecibo(document, "1ª VIA - MORADOR / CONDÔMINO", pagamento, apartamento, cota.getAnoMes(), "cota condominial ordinária");
 
             // Linha divisória de corte
             Paragraph corte = new Paragraph("\n✂ - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - CORTE AQUI - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - ✂\n\n", fontPequena);
@@ -58,7 +61,7 @@ public class OpenPdfGeneratorAdapter implements IPdfGeneratorPort {
             document.add(corte);
 
             // 2ª VIA: CONDOMÍNIO (CANHOTO)
-            adicionarViaRecibo(document, "2ª VIA - CONDOMÍNIO (CANHOTO DE PRESTAÇÃO DE CONTAS)", pagamento, apartamento, cota);
+            adicionarViaRecibo(document, "2ª VIA - CONDOMÍNIO (CANHOTO DE PRESTAÇÃO DE CONTAS)", pagamento, apartamento, cota.getAnoMes(), "cota condominial ordinária");
 
             document.close();
             return baos.toByteArray();
@@ -67,7 +70,37 @@ public class OpenPdfGeneratorAdapter implements IPdfGeneratorPort {
         }
     }
 
-    private void adicionarViaRecibo(Document doc, String tipoVia, PagamentoDinheiro pag, Apartamento apto, CotaCondominial cota) throws Exception {
+    @Override
+    public byte[] gerarReciboConsolidadoPeriodoPdf(PagamentoDinheiro pagamento, Apartamento apartamento, List<CotaCondominial> cotas) {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        Document document = new Document(PageSize.A4, 36, 36, 36, 36);
+
+        try {
+            PdfWriter.getInstance(document, baos);
+            document.open();
+
+            String listaMeses = cotas.stream().map(CotaCondominial::getAnoMes).collect(Collectors.joining(", "));
+            String discriminacao = String.format("quitação acumulada de %d cotas condominiais ordinárias dos meses (%s)", cotas.size(), listaMeses);
+
+            // 1ª VIA: MORADOR
+            adicionarViaRecibo(document, "1ª VIA - MORADOR / CONDÔMINO (RECIBO CONSOLIDADO POR PERÍODO)", pagamento, apartamento, listaMeses, discriminacao);
+
+            // Linha divisória de corte
+            Paragraph corte = new Paragraph("\n✂ - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - CORTE AQUI - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - ✂\n\n", fontPequena);
+            corte.setAlignment(Element.ALIGN_CENTER);
+            document.add(corte);
+
+            // 2ª VIA: CONDOMÍNIO (CANHOTO)
+            adicionarViaRecibo(document, "2ª VIA - CONDOMÍNIO (CANHOTO CONSOLIDADO POR PERÍODO)", pagamento, apartamento, listaMeses, discriminacao);
+
+            document.close();
+            return baos.toByteArray();
+        } catch (Exception e) {
+            throw new RuntimeException("Erro ao gerar PDF de Recibo Consolidado por Período", e);
+        }
+    }
+
+    private void adicionarViaRecibo(Document doc, String tipoVia, PagamentoDinheiro pag, Apartamento apto, String competenciaTexto, String discriminacao) throws Exception {
         PdfPTable box = new PdfPTable(1);
         box.setWidthPercentage(100);
 
@@ -95,7 +128,7 @@ public class OpenPdfGeneratorAdapter implements IPdfGeneratorPort {
         info.addCell(criarCelulaSemBorda("Valor Pago: " + MOEDA.format(pag.getValorPago()), fontDestaque));
 
         info.addCell(criarCelulaSemBorda("Unidade: " + apto.getDescricaoCompleta(), fontCorpo));
-        info.addCell(criarCelulaSemBorda("Competência: " + cota.getAnoMes(), fontCorpoBold));
+        info.addCell(criarCelulaSemBorda("Competência(s): " + competenciaTexto, fontCorpoBold));
 
         String moradorStr = apto.getMorador() != null ? apto.getMorador().getNome() : "Não informado";
         info.addCell(criarCelulaSemBorda("Morador/Responsável: " + moradorStr, fontCorpo));
@@ -105,8 +138,8 @@ public class OpenPdfGeneratorAdapter implements IPdfGeneratorPort {
         cell.addElement(new Paragraph(" "));
 
         String textoRecibo = String.format(
-                "Recebemos da unidade %s (%s) a quantia em dinheiro de %s referente à liquidação da cota condominial ordinária do mês de %s.",
-                apto.getNumero(), apto.getBloco().getDescricao(), MOEDA.format(pag.getValorPago()), cota.getAnoMes()
+                "Recebemos da unidade %s (%s) a quantia em dinheiro de %s referente à %s.",
+                apto.getNumero(), apto.getBloco().getDescricao(), MOEDA.format(pag.getValorPago()), discriminacao
         );
         Paragraph pTexto = new Paragraph(textoRecibo, fontCorpo);
         cell.addElement(pTexto);
@@ -233,11 +266,13 @@ public class OpenPdfGeneratorAdapter implements IPdfGeneratorPort {
             PdfWriter.getInstance(document, baos);
             document.open();
 
+            String mesPorExtenso = formatarMesExtenso(balancete.getMesAno());
+
             Paragraph pCabecalho = new Paragraph("RESIDENCIAL ANHANDUÍ (BLOCOS G E H)", fontTitulo);
             pCabecalho.setAlignment(Element.ALIGN_CENTER);
             document.add(pCabecalho);
 
-            Paragraph pSub = new Paragraph("PRESTAÇÃO DE CONTAS E BALANCETE MENSAL • COMPETÊNCIA: " + balancete.getMesAno(), fontSubtitulo);
+            Paragraph pSub = new Paragraph("PRESTAÇÃO DE CONTAS E BALANCETE MENSAL • " + mesPorExtenso.toUpperCase() + " (" + balancete.getMesAno() + ")", fontSubtitulo);
             pSub.setAlignment(Element.ALIGN_CENTER);
             document.add(pSub);
 
@@ -266,7 +301,7 @@ public class OpenPdfGeneratorAdapter implements IPdfGeneratorPort {
             }
 
             document.add(new Paragraph("\n\n\n"));
-            Paragraph pAviso = new Paragraph("Documento afixado para transparência e prestação de contas aos condôminos dos Blocos G e H.", fontPequena);
+            Paragraph pAviso = new Paragraph("Documento oficial afixado para transparência e prestação de contas aos condôminos dos Blocos G e H.", fontPequena);
             pAviso.setAlignment(Element.ALIGN_CENTER);
             document.add(pAviso);
 
@@ -274,6 +309,16 @@ public class OpenPdfGeneratorAdapter implements IPdfGeneratorPort {
             return baos.toByteArray();
         } catch (Exception e) {
             throw new RuntimeException("Erro ao gerar PDF de Balancete", e);
+        }
+    }
+
+    private String formatarMesExtenso(String anoMes) {
+        try {
+            YearMonth ym = YearMonth.parse(anoMes);
+            String nomeMes = ym.getMonth().getDisplayName(TextStyle.FULL, new Locale("pt", "BR"));
+            return nomeMes.substring(0, 1).toUpperCase() + nomeMes.substring(1) + " de " + ym.getYear();
+        } catch (Exception e) {
+            return "Competência " + anoMes;
         }
     }
 

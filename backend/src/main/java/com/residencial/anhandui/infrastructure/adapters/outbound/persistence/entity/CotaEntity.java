@@ -34,6 +34,9 @@ public class CotaEntity {
     @Column(name = "data_pagamento")
     private LocalDate dataPagamento;
 
+    @Column(name = "comprovante_fisico_arquivo")
+    private String comprovanteFisicoArquivo;
+
     public CotaEntity() {
     }
 
@@ -91,5 +94,13 @@ public class CotaEntity {
 
     public void setDataPagamento(LocalDate dataPagamento) {
         this.dataPagamento = dataPagamento;
+    }
+
+    public String getComprovanteFisicoArquivo() {
+        return comprovanteFisicoArquivo;
+    }
+
+    public void setComprovanteFisicoArquivo(String comprovanteFisicoArquivo) {
+        this.comprovanteFisicoArquivo = comprovanteFisicoArquivo;
     }
 }

@@ -68,7 +68,7 @@ public class CotaRepositoryAdapter implements ICotaRepositoryPort {
     }
 
     private CotaCondominial toDomain(CotaEntity entity) {
-        return new CotaCondominial(
+        CotaCondominial cota = new CotaCondominial(
                 UUID.fromString(entity.getId()),
                 UUID.fromString(entity.getApartamentoId()),
                 entity.getAnoMes(),
@@ -77,6 +77,8 @@ public class CotaRepositoryAdapter implements ICotaRepositoryPort {
                 StatusCota.valueOf(entity.getStatus()),
                 entity.getDataPagamento()
         );
+        cota.setComprovanteFisicoArquivo(entity.getComprovanteFisicoArquivo());
+        return cota;
     }
 
     private CotaEntity toEntity(CotaCondominial domain) {
@@ -88,6 +90,7 @@ public class CotaRepositoryAdapter implements ICotaRepositoryPort {
         entity.setDataVencimento(domain.getDataVencimento());
         entity.setStatus(domain.getStatus().name());
         entity.setDataPagamento(domain.getDataPagamento());
+        entity.setComprovanteFisicoArquivo(domain.getComprovanteFisicoArquivo());
         return entity;
     }
 }

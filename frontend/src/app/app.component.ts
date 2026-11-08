@@ -29,6 +29,7 @@ export interface CotaCondominial {
   dataVencimento: string;
   status: 'PENDENTE' | 'PAGA' | 'ATRASADA';
   dataPagamento?: string;
+  comprovanteFisicoArquivo?: string;
 }
 
 export interface CenarioAdesao {
@@ -97,10 +98,25 @@ export class AppComponent implements OnInit {
   modalMoradorAberto = signal<boolean>(false);
   modalDndAberto = signal<boolean>(false);
   modalUploadAberto = signal<boolean>(false);
+  modalPeriodoAberto = signal<boolean>(false);
+  modalUploadReciboFisicoAberto = signal<boolean>(false);
 
   // Seleções para Ações
   aptoSelecionado: Apartamento | null = null;
   cotaSelecionada: CotaCondominial | null = null;
+
+  // Seleção para Recibo Físico
+  cotaSelecionadaParaRecibo: CotaCondominial | null = null;
+  aptoSelecionadoParaRecibo: Apartamento | null = null;
+  arquivoReciboFisico: File | null = null;
+
+  // Formulário Pagamento por Período (Múltiplos Meses)
+  periodoAptoId: string = '';
+  periodoMesInicio: string = '';
+  periodoMesFim: string = '';
+  periodoValorPorMes: number = 180.00;
+  periodoRecebidoPor: string = 'Administração / Síndico';
+  periodoObservacao: string = 'Quitação consolidada por período';
 
   // Formulário Pagamento em Dinheiro
   pagamentoValor: number = 180.00;
@@ -379,6 +395,145 @@ export class AppComponent implements OnInit {
       .subscribe({
         next: (blob) => this.baixarArquivoBlob(blob, `Balancete-${this.anoMesSelecionado()}.pdf`),
         error: (err) => alert('Erro ao baixar PDF do balancete: ' + err.message)
+      });
+  }
+
+  // Métodos de Quitação por Período
+  abrirModalPeriodo(apto?: Apartamento) {
+    if (apto) {
+      this.periodoAptoId = apto.id;
+    } else if (this.apartamentos().length > 0 && !this.periodoAptoId) {
+      this.periodoAptoId = this.apartamentos()[0].id;
+    }
+    this.periodoMesInicio = this.anoMesSelecionado();
+    this.periodoMesFim = this.anoMesSelecionado();
+    this.periodoValorPorMes = 180.00;
+    this.periodoRecebidoPor = 'Administração / Síndico';
+    this.periodoObservacao = 'Quitação consolidada de cotas em dinheiro';
+    this.modalPeriodoAberto.set(true);
+  }
+
+  fecharModalPeriodo() {
+    this.modalPeriodoAberto.set(false);
+  }
+
+  get periodoCalculoMeses(): number {
+    if (!this.periodoMesInicio || !this.periodoMesFim) return 0;
+    try {
+      const [y1, m1] = this.periodoMesInicio.split('-').map(Number);
+      const [y2, m2] = this.periodoMesFim.split('-').map(Number);
+      const total = (y2 - y1) * 12 + (m2 - m1) + 1;
+      return total > 0 ? total : 0;
+    } catch {
+      return 0;
+    }
+  }
+
+  get periodoValorTotal(): number {
+    return this.periodoCalculoMeses * (this.periodoValorPorMes || 180);
+  }
+
+  confirmarPagamentoPeriodo() {
+    if (!this.periodoAptoId) {
+      alert('Selecione o apartamento.');
+      return;
+    }
+    if (!this.periodoMesInicio || !this.periodoMesFim) {
+      alert('Informe o mês inicial e o mês final.');
+      return;
+    }
+    if (this.periodoMesInicio > this.periodoMesFim) {
+      alert('O mês inicial não pode ser posterior ao mês final.');
+      return;
+    }
+
+    const payload = {
+      apartamentoId: this.periodoAptoId,
+      anoMesInicio: this.periodoMesInicio,
+      anoMesFim: this.periodoMesFim,
+      valorPorMes: this.periodoValorPorMes,
+      recebidoPor: this.periodoRecebidoPor,
+      observacao: this.periodoObservacao
+    };
+
+    const apto = this.apartamentos().find(a => a.id === this.periodoAptoId);
+
+    this.http.post(`${this.apiUrl}/financeiro/pagamentos/periodo`, payload, { responseType: 'blob' })
+      .subscribe({
+        next: (blob) => {
+          this.baixarArquivoBlob(blob, `recibo-periodo-apto-${apto?.numero || 'unidade'}-${this.periodoMesInicio}-a-${this.periodoMesFim}.pdf`);
+          this.fecharModalPeriodo();
+          this.carregarCotas();
+          this.carregarBalancete();
+          alert(`Quitação por período de ${this.periodoCalculoMeses} meses (Total: R$ ${this.periodoValorTotal}) registrada com sucesso! Recibo consolidado em 2 vias baixado.`);
+        },
+        error: (err) => {
+          console.error('Erro na quitação por período', err);
+          alert('Erro ao registrar quitação por período. Verifique se todas as cotas do intervalo já não foram pagas.');
+        }
+      });
+  }
+
+  // Métodos de Recibo Físico Independente
+  abrirModalUploadReciboFisico(cota: CotaCondominial, apto: Apartamento) {
+    this.cotaSelecionadaParaRecibo = cota;
+    this.aptoSelecionadoParaRecibo = apto;
+    this.arquivoReciboFisico = null;
+    this.modalUploadReciboFisicoAberto.set(true);
+  }
+
+  fecharModalUploadReciboFisico() {
+    this.modalUploadReciboFisicoAberto.set(false);
+    this.cotaSelecionadaParaRecibo = null;
+    this.aptoSelecionadoParaRecibo = null;
+    this.arquivoReciboFisico = null;
+  }
+
+  onArquivoReciboFisicoSelecionado(event: any) {
+    const file = event.target.files[0];
+    if (file) {
+      this.arquivoReciboFisico = file;
+    }
+  }
+
+  enviarReciboFisico() {
+    if (!this.cotaSelecionadaParaRecibo || !this.arquivoReciboFisico) {
+      alert('Por favor, selecione o arquivo do recibo físico (foto ou PDF).');
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append('arquivo', this.arquivoReciboFisico);
+
+    this.http.post<CotaCondominial>(`${this.apiUrl}/financeiro/cotas/${this.cotaSelecionadaParaRecibo.id}/recibo-fisico`, formData)
+      .subscribe({
+        next: () => {
+          this.fecharModalUploadReciboFisico();
+          this.carregarCotas();
+          alert('Recibo físico anexado com sucesso a esta competência!');
+        },
+        error: (err) => {
+          console.error('Erro ao enviar recibo físico', err);
+          alert('Erro ao subir recibo físico: ' + (err.error?.message || err.message));
+        }
+      });
+  }
+
+  baixarReciboFisico(cota: CotaCondominial) {
+    if (!cota.comprovanteFisicoArquivo) {
+      alert('Nenhum comprovante físico foi anexado a esta cota.');
+      return;
+    }
+
+    this.http.get(`${this.apiUrl}/financeiro/cotas/${cota.id}/recibo-fisico`, { responseType: 'blob' })
+      .subscribe({
+        next: (blob) => {
+          this.baixarArquivoBlob(blob, `comprovante-fisico-${cota.anoMes}-${cota.comprovanteFisicoArquivo}`);
+        },
+        error: (err) => {
+          console.error('Erro ao baixar recibo físico', err);
+          alert('Erro ao baixar recibo físico.');
+        }
       });
   }
 
