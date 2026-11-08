@@ -17,8 +17,13 @@
         </a>
       </li>
       <li class="sidebar-item">
-        <a class="sidebar-link" [class.active]="tabAtiva() === 'unidades'" (click)="tabAtiva.set('unidades')">
-          <span>🏢</span> Blocos G & H (Unidades)
+        <a class="sidebar-link" [class.active]="tabAtiva() === 'bloco-g'" (click)="tabAtiva.set('bloco-g')">
+          <span>🏢</span> Bloco G (12 Aptos)
+        </a>
+      </li>
+      <li class="sidebar-item">
+        <a class="sidebar-link" [class.active]="tabAtiva() === 'bloco-h'" (click)="tabAtiva.set('bloco-h')">
+          <span>🏢</span> Bloco H (12 Aptos)
         </a>
       </li>
       <li class="sidebar-item">
@@ -136,7 +141,9 @@
           <div class="bloco-card">
             <div class="bloco-header">
               <span class="bloco-title">Bloco G (12 Apartamentos)</span>
-              <span class="badge badge-secondary">Térreo ao 2º Andar</span>
+              <button class="btn btn-outline btn-sm" (click)="tabAtiva.set('bloco-g')">
+                Ver Bloco G Completo →
+              </button>
             </div>
             <div class="apartamentos-grid">
               <div *ngFor="let apto of apartamentosBlocoG" class="apto-card"
@@ -171,7 +178,9 @@
           <div class="bloco-card">
             <div class="bloco-header">
               <span class="bloco-title">Bloco H (12 Apartamentos)</span>
-              <span class="badge badge-secondary">Térreo ao 2º Andar</span>
+              <button class="btn btn-outline btn-sm" (click)="tabAtiva.set('bloco-h')">
+                Ver Bloco H Completo →
+              </button>
             </div>
             <div class="apartamentos-grid">
               <div *ngFor="let apto of apartamentosBlocoH" class="apto-card"
@@ -204,95 +213,364 @@
         </div>
       </section>
 
-      <!-- TAB 2: UNIDADES (BLOCOS G & H DETALHADO) -->
-      <section *ngIf="tabAtiva() === 'unidades'">
-        <div class="card">
-          <div class="card-header">
+      <!-- TAB: BLOCO G DEDICADO -->
+      <section *ngIf="tabAtiva() === 'bloco-g'">
+        <div class="card" style="border-left: 4px solid var(--primary); margin-bottom: 24px;">
+          <div class="card-header" style="border-bottom: none; padding-bottom: 0;">
             <div>
-              <h2 class="card-title">Matriz Predial - Blocos G e H</h2>
-              <p style="color: var(--text-muted); font-size: 0.85rem;">
-                24 apartamentos, 4 por pavimento com vagas numeradas e controle de titularidade.
+              <h2 class="card-title" style="font-size: 1.4rem;">🏢 Bloco G - Matriz Predial</h2>
+              <p style="color: var(--text-muted); font-size: 0.9rem;">
+                12 apartamentos distribuídos em 3 pavimentos com garagens privativas numeradas de G-101 a G-304.
               </p>
             </div>
-            <span class="badge badge-secondary">Taxa Fixa: R$ 180,00</span>
+            <div style="display: flex; gap: 8px;">
+              <span class="badge badge-secondary" style="font-size: 0.85rem;">Garagens G-101 a G-304</span>
+              <button class="btn btn-primary btn-sm" (click)="abrirModalPeriodo()">
+                🗓️ Quitar Período no Bloco G
+              </button>
+            </div>
           </div>
 
-          <div class="blocos-container">
-            <!-- Bloco G -->
-            <div class="bloco-card">
-              <div class="bloco-header">
-                <span class="bloco-title">Bloco G</span>
-                <span class="badge badge-secondary">12 Unidades</span>
-              </div>
-              <div class="apartamentos-grid">
-                <div *ngFor="let apto of apartamentosBlocoG" class="apto-card"
-                     [class.status-paga]="obterCotaApartamento(apto.id)?.status === 'PAGA'"
-                     [class.status-pendente]="obterCotaApartamento(apto.id)?.status !== 'PAGA'">
-                  <div class="apto-top">
-                    <span class="apto-numero">Apto {{ apto.numero }}</span>
-                    <span class="badge badge-secondary">{{ apto.andar === 0 ? 'Térreo' : apto.andar + 'º Andar' }}</span>
-                  </div>
-                  <div class="apto-info">
-                    <div>🚗 Vaga Garagem: <strong>{{ apto.vagaGaragem }}</strong></div>
-                    <div>🔑 Proprietário: <strong>{{ apto.proprietario.nome }}</strong></div>
-                    <div>👤 Morador: <strong>{{ apto.morador.nome }}</strong></div>
-                    <div *ngIf="apto.morador.telefone && apto.morador.telefone !== 'Não informado'">
-                      📞 Tel: {{ apto.morador.telefone }}
-                    </div>
-                  </div>
-                  <div style="margin-top: 8px; display: flex; gap: 6px;">
-                    <button *ngIf="obterCotaApartamento(apto.id)?.status !== 'PAGA'"
-                            class="btn btn-success btn-sm" style="flex: 1;"
-                            (click)="abrirModalPagamento(apto)">
-                      💵 Baixa (R$ 180)
-                    </button>
-                    <button class="btn btn-outline btn-sm" (click)="abrirModalMorador(apto)">
-                      ✏️ Editar
-                    </button>
-                    <button class="btn btn-outline btn-sm" (click)="abrirModalDnd(apto)" title="Emitir DND">
-                      📄 DND
-                    </button>
-                  </div>
-                </div>
-              </div>
+          <!-- Métricas Isoladas do Bloco G -->
+          <div class="bloco-banner-stats" style="margin-top: 20px;">
+            <div class="stat-card" style="background: #f8fafc; border: 1px solid var(--border);">
+              <span class="stat-label">Arrecadação do Bloco G</span>
+              <span class="stat-value" style="color: #059669; font-size: 1.5rem;">
+                R$ {{ totalArrecadadoPorBloco('BLOCO_G') | number:'1.2-2' }}
+              </span>
+              <span class="stat-meta">De R$ 2.160,00 previstos (12 cotas)</span>
             </div>
 
-            <!-- Bloco H -->
-            <div class="bloco-card">
-              <div class="bloco-header">
-                <span class="bloco-title">Bloco H</span>
-                <span class="badge badge-secondary">12 Unidades</span>
+            <div class="stat-card" style="background: #f8fafc; border: 1px solid var(--border);">
+              <span class="stat-label">Taxa de Adimplência</span>
+              <span class="stat-value" [style.color]="taxaAdimplenciaPorBloco('BLOCO_G') >= 70 ? '#059669' : '#dc2626'" style="font-size: 1.5rem;">
+                {{ taxaAdimplenciaPorBloco('BLOCO_G') }}%
+              </span>
+              <span class="stat-meta">{{ 12 - totalInadimplentesPorBloco('BLOCO_G') }} de 12 unidades em dia</span>
+            </div>
+
+            <div class="stat-card" style="background: #f8fafc; border: 1px solid var(--border);">
+              <span class="stat-label">Cotas em Aberto</span>
+              <span class="stat-value" style="color: #dc2626; font-size: 1.5rem;">
+                {{ totalInadimplentesPorBloco('BLOCO_G') }}
+              </span>
+              <span class="stat-meta">Aguardando entrega de recibo</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Térreo do Bloco G -->
+        <div class="pavimento-secao">
+          <div class="pavimento-header">
+            <span class="pavimento-title">🏠 Pavimento Térreo (Aptos 101 a 104)</span>
+            <span class="badge badge-secondary">4 Unidades • Garagens G-101 a G-104</span>
+          </div>
+          <div class="apartamentos-grid">
+            <div *ngFor="let apto of obterAptosPorBlocoEAndar('BLOCO_G', 0)" class="apto-card"
+                 [class.status-paga]="obterCotaApartamento(apto.id)?.status === 'PAGA'"
+                 [class.status-pendente]="obterCotaApartamento(apto.id)?.status !== 'PAGA'">
+              <div class="apto-top">
+                <span class="apto-numero">Apto {{ apto.numero }}</span>
+                <span class="badge" [class.badge-success]="obterCotaApartamento(apto.id)?.status === 'PAGA'"
+                                   [class.badge-danger]="obterCotaApartamento(apto.id)?.status !== 'PAGA'">
+                  {{ obterCotaApartamento(apto.id)?.status === 'PAGA' ? 'PAGO' : 'EM ABERTO' }}
+                </span>
               </div>
-              <div class="apartamentos-grid">
-                <div *ngFor="let apto of apartamentosBlocoH" class="apto-card"
-                     [class.status-paga]="obterCotaApartamento(apto.id)?.status === 'PAGA'"
-                     [class.status-pendente]="obterCotaApartamento(apto.id)?.status !== 'PAGA'">
-                  <div class="apto-top">
-                    <span class="apto-numero">Apto {{ apto.numero }}</span>
-                    <span class="badge badge-secondary">{{ apto.andar === 0 ? 'Térreo' : apto.andar + 'º Andar' }}</span>
-                  </div>
-                  <div class="apto-info">
-                    <div>🚗 Vaga Garagem: <strong>{{ apto.vagaGaragem }}</strong></div>
-                    <div>🔑 Proprietário: <strong>{{ apto.proprietario.nome }}</strong></div>
-                    <div>👤 Morador: <strong>{{ apto.morador.nome }}</strong></div>
-                    <div *ngIf="apto.morador.telefone && apto.morador.telefone !== 'Não informado'">
-                      📞 Tel: {{ apto.morador.telefone }}
-                    </div>
-                  </div>
-                  <div style="margin-top: 8px; display: flex; gap: 6px;">
-                    <button *ngIf="obterCotaApartamento(apto.id)?.status !== 'PAGA'"
-                            class="btn btn-success btn-sm" style="flex: 1;"
-                            (click)="abrirModalPagamento(apto)">
-                      💵 Baixa (R$ 180)
-                    </button>
-                    <button class="btn btn-outline btn-sm" (click)="abrirModalMorador(apto)">
-                      ✏️ Editar
-                    </button>
-                    <button class="btn btn-outline btn-sm" (click)="abrirModalDnd(apto)" title="Emitir DND">
-                      📄 DND
-                    </button>
-                  </div>
+              <div class="apto-info">
+                <div>🚗 Vaga Garagem: <strong>{{ apto.vagaGaragem }}</strong></div>
+                <div>🔑 Proprietário: <strong>{{ apto.proprietario.nome }}</strong></div>
+                <div>👤 Morador: <strong>{{ apto.morador.nome }}</strong></div>
+                <div *ngIf="apto.morador.telefone && apto.morador.telefone !== 'Não informado'">
+                  📞 Tel: {{ apto.morador.telefone }}
                 </div>
+              </div>
+              <div style="margin-top: 10px; display: flex; flex-wrap: wrap; gap: 6px;">
+                <button *ngIf="obterCotaApartamento(apto.id)?.status !== 'PAGA'"
+                        class="btn btn-success btn-sm" style="flex: 1;"
+                        (click)="abrirModalPagamento(apto)">
+                  💵 Receber R$ 180
+                </button>
+                <button class="btn btn-outline btn-sm" (click)="abrirModalPeriodo(apto)" title="Quitar múltiplos meses">
+                  🗓️ Período
+                </button>
+                <button class="btn btn-outline btn-sm" (click)="abrirModalMorador(apto)">
+                  ✏️ Editar
+                </button>
+                <button class="btn btn-outline btn-sm" (click)="abrirModalDnd(apto)" title="Emitir DND">
+                  📄 DND
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 1º Andar do Bloco G -->
+        <div class="pavimento-secao">
+          <div class="pavimento-header">
+            <span class="pavimento-title">🏢 1º Pavimento (Aptos 201 a 204)</span>
+            <span class="badge badge-secondary">4 Unidades • Garagens G-201 a G-204</span>
+          </div>
+          <div class="apartamentos-grid">
+            <div *ngFor="let apto of obterAptosPorBlocoEAndar('BLOCO_G', 1)" class="apto-card"
+                 [class.status-paga]="obterCotaApartamento(apto.id)?.status === 'PAGA'"
+                 [class.status-pendente]="obterCotaApartamento(apto.id)?.status !== 'PAGA'">
+              <div class="apto-top">
+                <span class="apto-numero">Apto {{ apto.numero }}</span>
+                <span class="badge" [class.badge-success]="obterCotaApartamento(apto.id)?.status === 'PAGA'"
+                                   [class.badge-danger]="obterCotaApartamento(apto.id)?.status !== 'PAGA'">
+                  {{ obterCotaApartamento(apto.id)?.status === 'PAGA' ? 'PAGO' : 'EM ABERTO' }}
+                </span>
+              </div>
+              <div class="apto-info">
+                <div>🚗 Vaga Garagem: <strong>{{ apto.vagaGaragem }}</strong></div>
+                <div>🔑 Proprietário: <strong>{{ apto.proprietario.nome }}</strong></div>
+                <div>👤 Morador: <strong>{{ apto.morador.nome }}</strong></div>
+                <div *ngIf="apto.morador.telefone && apto.morador.telefone !== 'Não informado'">
+                  📞 Tel: {{ apto.morador.telefone }}
+                </div>
+              </div>
+              <div style="margin-top: 10px; display: flex; flex-wrap: wrap; gap: 6px;">
+                <button *ngIf="obterCotaApartamento(apto.id)?.status !== 'PAGA'"
+                        class="btn btn-success btn-sm" style="flex: 1;"
+                        (click)="abrirModalPagamento(apto)">
+                  💵 Receber R$ 180
+                </button>
+                <button class="btn btn-outline btn-sm" (click)="abrirModalPeriodo(apto)" title="Quitar múltiplos meses">
+                  🗓️ Período
+                </button>
+                <button class="btn btn-outline btn-sm" (click)="abrirModalMorador(apto)">
+                  ✏️ Editar
+                </button>
+                <button class="btn btn-outline btn-sm" (click)="abrirModalDnd(apto)" title="Emitir DND">
+                  📄 DND
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 2º Andar do Bloco G -->
+        <div class="pavimento-secao">
+          <div class="pavimento-header">
+            <span class="pavimento-title">🏢 2º Pavimento (Aptos 301 a 304)</span>
+            <span class="badge badge-secondary">4 Unidades • Garagens G-301 a G-304</span>
+          </div>
+          <div class="apartamentos-grid">
+            <div *ngFor="let apto of obterAptosPorBlocoEAndar('BLOCO_G', 2)" class="apto-card"
+                 [class.status-paga]="obterCotaApartamento(apto.id)?.status === 'PAGA'"
+                 [class.status-pendente]="obterCotaApartamento(apto.id)?.status !== 'PAGA'">
+              <div class="apto-top">
+                <span class="apto-numero">Apto {{ apto.numero }}</span>
+                <span class="badge" [class.badge-success]="obterCotaApartamento(apto.id)?.status === 'PAGA'"
+                                   [class.badge-danger]="obterCotaApartamento(apto.id)?.status !== 'PAGA'">
+                  {{ obterCotaApartamento(apto.id)?.status === 'PAGA' ? 'PAGO' : 'EM ABERTO' }}
+                </span>
+              </div>
+              <div class="apto-info">
+                <div>🚗 Vaga Garagem: <strong>{{ apto.vagaGaragem }}</strong></div>
+                <div>🔑 Proprietário: <strong>{{ apto.proprietario.nome }}</strong></div>
+                <div>👤 Morador: <strong>{{ apto.morador.nome }}</strong></div>
+                <div *ngIf="apto.morador.telefone && apto.morador.telefone !== 'Não informado'">
+                  📞 Tel: {{ apto.morador.telefone }}
+                </div>
+              </div>
+              <div style="margin-top: 10px; display: flex; flex-wrap: wrap; gap: 6px;">
+                <button *ngIf="obterCotaApartamento(apto.id)?.status !== 'PAGA'"
+                        class="btn btn-success btn-sm" style="flex: 1;"
+                        (click)="abrirModalPagamento(apto)">
+                  💵 Receber R$ 180
+                </button>
+                <button class="btn btn-outline btn-sm" (click)="abrirModalPeriodo(apto)" title="Quitar múltiplos meses">
+                  🗓️ Período
+                </button>
+                <button class="btn btn-outline btn-sm" (click)="abrirModalMorador(apto)">
+                  ✏️ Editar
+                </button>
+                <button class="btn btn-outline btn-sm" (click)="abrirModalDnd(apto)" title="Emitir DND">
+                  📄 DND
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB: BLOCO H DEDICADO -->
+      <section *ngIf="tabAtiva() === 'bloco-h'">
+        <div class="card" style="border-left: 4px solid #3b82f6; margin-bottom: 24px;">
+          <div class="card-header" style="border-bottom: none; padding-bottom: 0;">
+            <div>
+              <h2 class="card-title" style="font-size: 1.4rem;">🏢 Bloco H - Matriz Predial</h2>
+              <p style="color: var(--text-muted); font-size: 0.9rem;">
+                12 apartamentos distribuídos em 3 pavimentos com garagens privativas numeradas de H-101 a H-304.
+              </p>
+            </div>
+            <div style="display: flex; gap: 8px;">
+              <span class="badge badge-secondary" style="font-size: 0.85rem;">Garagens H-101 a H-304</span>
+              <button class="btn btn-primary btn-sm" (click)="abrirModalPeriodo()">
+                🗓️ Quitar Período no Bloco H
+              </button>
+            </div>
+          </div>
+
+          <!-- Métricas Isoladas do Bloco H -->
+          <div class="bloco-banner-stats" style="margin-top: 20px;">
+            <div class="stat-card" style="background: #f8fafc; border: 1px solid var(--border);">
+              <span class="stat-label">Arrecadação do Bloco H</span>
+              <span class="stat-value" style="color: #059669; font-size: 1.5rem;">
+                R$ {{ totalArrecadadoPorBloco('BLOCO_H') | number:'1.2-2' }}
+              </span>
+              <span class="stat-meta">De R$ 2.160,00 previstos (12 cotas)</span>
+            </div>
+
+            <div class="stat-card" style="background: #f8fafc; border: 1px solid var(--border);">
+              <span class="stat-label">Taxa de Adimplência</span>
+              <span class="stat-value" [style.color]="taxaAdimplenciaPorBloco('BLOCO_H') >= 70 ? '#059669' : '#dc2626'" style="font-size: 1.5rem;">
+                {{ taxaAdimplenciaPorBloco('BLOCO_H') }}%
+              </span>
+              <span class="stat-meta">{{ 12 - totalInadimplentesPorBloco('BLOCO_H') }} de 12 unidades em dia</span>
+            </div>
+
+            <div class="stat-card" style="background: #f8fafc; border: 1px solid var(--border);">
+              <span class="stat-label">Cotas em Aberto</span>
+              <span class="stat-value" style="color: #dc2626; font-size: 1.5rem;">
+                {{ totalInadimplentesPorBloco('BLOCO_H') }}
+              </span>
+              <span class="stat-meta">Aguardando entrega de recibo</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Térreo do Bloco H -->
+        <div class="pavimento-secao">
+          <div class="pavimento-header">
+            <span class="pavimento-title">🏠 Pavimento Térreo (Aptos 101 a 104)</span>
+            <span class="badge badge-secondary">4 Unidades • Garagens H-101 a H-104</span>
+          </div>
+          <div class="apartamentos-grid">
+            <div *ngFor="let apto of obterAptosPorBlocoEAndar('BLOCO_H', 0)" class="apto-card"
+                 [class.status-paga]="obterCotaApartamento(apto.id)?.status === 'PAGA'"
+                 [class.status-pendente]="obterCotaApartamento(apto.id)?.status !== 'PAGA'">
+              <div class="apto-top">
+                <span class="apto-numero">Apto {{ apto.numero }}</span>
+                <span class="badge" [class.badge-success]="obterCotaApartamento(apto.id)?.status === 'PAGA'"
+                                   [class.badge-danger]="obterCotaApartamento(apto.id)?.status !== 'PAGA'">
+                  {{ obterCotaApartamento(apto.id)?.status === 'PAGA' ? 'PAGO' : 'EM ABERTO' }}
+                </span>
+              </div>
+              <div class="apto-info">
+                <div>🚗 Vaga Garagem: <strong>{{ apto.vagaGaragem }}</strong></div>
+                <div>🔑 Proprietário: <strong>{{ apto.proprietario.nome }}</strong></div>
+                <div>👤 Morador: <strong>{{ apto.morador.nome }}</strong></div>
+                <div *ngIf="apto.morador.telefone && apto.morador.telefone !== 'Não informado'">
+                  📞 Tel: {{ apto.morador.telefone }}
+                </div>
+              </div>
+              <div style="margin-top: 10px; display: flex; flex-wrap: wrap; gap: 6px;">
+                <button *ngIf="obterCotaApartamento(apto.id)?.status !== 'PAGA'"
+                        class="btn btn-success btn-sm" style="flex: 1;"
+                        (click)="abrirModalPagamento(apto)">
+                  💵 Receber R$ 180
+                </button>
+                <button class="btn btn-outline btn-sm" (click)="abrirModalPeriodo(apto)" title="Quitar múltiplos meses">
+                  🗓️ Período
+                </button>
+                <button class="btn btn-outline btn-sm" (click)="abrirModalMorador(apto)">
+                  ✏️ Editar
+                </button>
+                <button class="btn btn-outline btn-sm" (click)="abrirModalDnd(apto)" title="Emitir DND">
+                  📄 DND
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 1º Andar do Bloco H -->
+        <div class="pavimento-secao">
+          <div class="pavimento-header">
+            <span class="pavimento-title">🏢 1º Pavimento (Aptos 201 a 204)</span>
+            <span class="badge badge-secondary">4 Unidades • Garagens H-201 a H-204</span>
+          </div>
+          <div class="apartamentos-grid">
+            <div *ngFor="let apto of obterAptosPorBlocoEAndar('BLOCO_H', 1)" class="apto-card"
+                 [class.status-paga]="obterCotaApartamento(apto.id)?.status === 'PAGA'"
+                 [class.status-pendente]="obterCotaApartamento(apto.id)?.status !== 'PAGA'">
+              <div class="apto-top">
+                <span class="apto-numero">Apto {{ apto.numero }}</span>
+                <span class="badge" [class.badge-success]="obterCotaApartamento(apto.id)?.status === 'PAGA'"
+                                   [class.badge-danger]="obterCotaApartamento(apto.id)?.status !== 'PAGA'">
+                  {{ obterCotaApartamento(apto.id)?.status === 'PAGA' ? 'PAGO' : 'EM ABERTO' }}
+                </span>
+              </div>
+              <div class="apto-info">
+                <div>🚗 Vaga Garagem: <strong>{{ apto.vagaGaragem }}</strong></div>
+                <div>🔑 Proprietário: <strong>{{ apto.proprietario.nome }}</strong></div>
+                <div>👤 Morador: <strong>{{ apto.morador.nome }}</strong></div>
+                <div *ngIf="apto.morador.telefone && apto.morador.telefone !== 'Não informado'">
+                  📞 Tel: {{ apto.morador.telefone }}
+                </div>
+              </div>
+              <div style="margin-top: 10px; display: flex; flex-wrap: wrap; gap: 6px;">
+                <button *ngIf="obterCotaApartamento(apto.id)?.status !== 'PAGA'"
+                        class="btn btn-success btn-sm" style="flex: 1;"
+                        (click)="abrirModalPagamento(apto)">
+                  💵 Receber R$ 180
+                </button>
+                <button class="btn btn-outline btn-sm" (click)="abrirModalPeriodo(apto)" title="Quitar múltiplos meses">
+                  🗓️ Período
+                </button>
+                <button class="btn btn-outline btn-sm" (click)="abrirModalMorador(apto)">
+                  ✏️ Editar
+                </button>
+                <button class="btn btn-outline btn-sm" (click)="abrirModalDnd(apto)" title="Emitir DND">
+                  📄 DND
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 2º Andar do Bloco H -->
+        <div class="pavimento-secao">
+          <div class="pavimento-header">
+            <span class="pavimento-title">🏢 2º Pavimento (Aptos 301 a 304)</span>
+            <span class="badge badge-secondary">4 Unidades • Garagens H-301 a H-304</span>
+          </div>
+          <div class="apartamentos-grid">
+            <div *ngFor="let apto of obterAptosPorBlocoEAndar('BLOCO_H', 2)" class="apto-card"
+                 [class.status-paga]="obterCotaApartamento(apto.id)?.status === 'PAGA'"
+                 [class.status-pendente]="obterCotaApartamento(apto.id)?.status !== 'PAGA'">
+              <div class="apto-top">
+                <span class="apto-numero">Apto {{ apto.numero }}</span>
+                <span class="badge" [class.badge-success]="obterCotaApartamento(apto.id)?.status === 'PAGA'"
+                                   [class.badge-danger]="obterCotaApartamento(apto.id)?.status !== 'PAGA'">
+                  {{ obterCotaApartamento(apto.id)?.status === 'PAGA' ? 'PAGO' : 'EM ABERTO' }}
+                </span>
+              </div>
+              <div class="apto-info">
+                <div>🚗 Vaga Garagem: <strong>{{ apto.vagaGaragem }}</strong></div>
+                <div>🔑 Proprietário: <strong>{{ apto.proprietario.nome }}</strong></div>
+                <div>👤 Morador: <strong>{{ apto.morador.nome }}</strong></div>
+                <div *ngIf="apto.morador.telefone && apto.morador.telefone !== 'Não informado'">
+                  📞 Tel: {{ apto.morador.telefone }}
+                </div>
+              </div>
+              <div style="margin-top: 10px; display: flex; flex-wrap: wrap; gap: 6px;">
+                <button *ngIf="obterCotaApartamento(apto.id)?.status !== 'PAGA'"
+                        class="btn btn-success btn-sm" style="flex: 1;"
+                        (click)="abrirModalPagamento(apto)">
+                  💵 Receber R$ 180
+                </button>
+                <button class="btn btn-outline btn-sm" (click)="abrirModalPeriodo(apto)" title="Quitar múltiplos meses">
+                  🗓️ Período
+                </button>
+                <button class="btn btn-outline btn-sm" (click)="abrirModalMorador(apto)">
+                  ✏️ Editar
+                </button>
+                <button class="btn btn-outline btn-sm" (click)="abrirModalDnd(apto)" title="Emitir DND">
+                  📄 DND
+                </button>
               </div>
             </div>
           </div>
@@ -317,6 +595,23 @@
             </div>
           </div>
 
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 12px;">
+            <div class="filter-pills">
+              <button class="pill-btn" [class.active]="filtroBlocoCaixa() === 'TODOS'" (click)="filtroBlocoCaixa.set('TODOS')">
+                🏢 Todos os Apartamentos (24)
+              </button>
+              <button class="pill-btn" [class.active]="filtroBlocoCaixa() === 'BLOCO_G'" (click)="filtroBlocoCaixa.set('BLOCO_G')">
+                🏢 Somente Bloco G (12)
+              </button>
+              <button class="pill-btn" [class.active]="filtroBlocoCaixa() === 'BLOCO_H'" (click)="filtroBlocoCaixa.set('BLOCO_H')">
+                🏢 Somente Bloco H (12)
+              </button>
+            </div>
+            <span style="font-size: 0.85rem; color: var(--text-muted); font-weight: 600;">
+              Exibindo {{ apartamentosCaixaFiltrados.length }} apartamentos
+            </span>
+          </div>
+
           <div class="table-responsive">
             <table class="table">
               <thead>
@@ -332,7 +627,7 @@
                 </tr>
               </thead>
               <tbody>
-                <tr *ngFor="let apto of apartamentos()">
+                <tr *ngFor="let apto of apartamentosCaixaFiltrados">
                   <td><strong>{{ apto.bloco === 'BLOCO_G' ? 'Bloco G' : 'Bloco H' }} - Apto {{ apto.numero }}</strong></td>
                   <td>{{ apto.vagaGaragem }}</td>
                   <td>{{ apto.morador.nome }}</td>
@@ -472,8 +767,19 @@
 
           <div style="background: #f8fafc; padding: 20px; border-radius: 8px; margin-bottom: 24px;">
             <p style="font-size: 0.9rem; color: #334155; margin-bottom: 12px;">
-              Selecione qualquer uma das 24 unidades abaixo para emitir a certidão. Se houver cotas pendentes de pagamento em dinheiro, o sistema bloqueia a emissão automaticamente e informa os débitos.
+              Selecione a unidade abaixo para emitir a certidão. Se houver cotas pendentes de pagamento em dinheiro, o sistema bloqueia a emissão automaticamente e informa os débitos.
             </p>
+            <div class="filter-pills">
+              <button class="pill-btn" [class.active]="filtroBlocoDnd() === 'TODOS'" (click)="filtroBlocoDnd.set('TODOS')">
+                🏢 Todos os Blocos (24)
+              </button>
+              <button class="pill-btn" [class.active]="filtroBlocoDnd() === 'BLOCO_G'" (click)="filtroBlocoDnd.set('BLOCO_G')">
+                🏢 Somente Bloco G (12)
+              </button>
+              <button class="pill-btn" [class.active]="filtroBlocoDnd() === 'BLOCO_H'" (click)="filtroBlocoDnd.set('BLOCO_H')">
+                🏢 Somente Bloco H (12)
+              </button>
+            </div>
           </div>
 
           <div class="table-responsive">
@@ -488,7 +794,7 @@
                 </tr>
               </thead>
               <tbody>
-                <tr *ngFor="let apto of apartamentos()">
+                <tr *ngFor="let apto of apartamentosDndFiltrados">
                   <td><strong>{{ apto.bloco === 'BLOCO_G' ? 'Bloco G' : 'Bloco H' }} - Apto {{ apto.numero }}</strong></td>
                   <td>{{ apto.vagaGaragem }}</td>
                   <td>{{ apto.proprietario.nome }}</td>

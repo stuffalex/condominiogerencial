@@ -82,7 +82,11 @@ export class AppComponent implements OnInit {
   private apiUrl = '/api';
 
   // Navegação
-  tabAtiva = signal<'dashboard' | 'unidades' | 'caixa' | 'muro' | 'dnd' | 'documentos' | 'balancete'>('dashboard');
+  tabAtiva = signal<'dashboard' | 'bloco-g' | 'bloco-h' | 'caixa' | 'muro' | 'dnd' | 'documentos' | 'balancete'>('dashboard');
+
+  // Filtros de Bloco
+  filtroBlocoCaixa = signal<'TODOS' | 'BLOCO_G' | 'BLOCO_H'>('TODOS');
+  filtroBlocoDnd = signal<'TODOS' | 'BLOCO_G' | 'BLOCO_H'>('TODOS');
 
   // Estados com Signals
   apartamentos = signal<Apartamento[]>([]);
@@ -229,6 +233,44 @@ export class AppComponent implements OnInit {
 
   get apartamentosBlocoH(): Apartamento[] {
     return this.apartamentos().filter(a => a.bloco === 'BLOCO_H');
+  }
+
+  obterAptosPorBlocoEAndar(bloco: 'BLOCO_G' | 'BLOCO_H', andar: number): Apartamento[] {
+    return this.apartamentos()
+      .filter(a => a.bloco === bloco && a.andar === andar)
+      .sort((a, b) => a.numero.localeCompare(b.numero));
+  }
+
+  totalArrecadadoPorBloco(bloco: 'BLOCO_G' | 'BLOCO_H'): number {
+    const idsBloco = new Set(this.apartamentos().filter(a => a.bloco === bloco).map(a => a.id));
+    return this.cotas()
+      .filter(c => idsBloco.has(c.apartamentoId) && c.status === 'PAGA')
+      .reduce((acc, c) => acc + (c.valorBase || 180), 0);
+  }
+
+  totalInadimplentesPorBloco(bloco: 'BLOCO_G' | 'BLOCO_H'): number {
+    const idsBloco = new Set(this.apartamentos().filter(a => a.bloco === bloco).map(a => a.id));
+    return this.cotas().filter(c => idsBloco.has(c.apartamentoId) && c.status !== 'PAGA').length;
+  }
+
+  taxaAdimplenciaPorBloco(bloco: 'BLOCO_G' | 'BLOCO_H'): number {
+    const idsBloco = new Set(this.apartamentos().filter(a => a.bloco === bloco).map(a => a.id));
+    const cotasDoBloco = this.cotas().filter(c => idsBloco.has(c.apartamentoId));
+    if (cotasDoBloco.length === 0) return 0;
+    const pagas = cotasDoBloco.filter(c => c.status === 'PAGA').length;
+    return Math.round((pagas / cotasDoBloco.length) * 100);
+  }
+
+  get apartamentosCaixaFiltrados(): Apartamento[] {
+    const f = this.filtroBlocoCaixa();
+    if (f === 'TODOS') return this.apartamentos();
+    return this.apartamentos().filter(a => a.bloco === f);
+  }
+
+  get apartamentosDndFiltrados(): Apartamento[] {
+    const f = this.filtroBlocoDnd();
+    if (f === 'TODOS') return this.apartamentos();
+    return this.apartamentos().filter(a => a.bloco === f);
   }
 
   obterCotaApartamento(aptoId: string): CotaCondominial | undefined {
