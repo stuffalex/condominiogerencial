@@ -28,7 +28,9 @@ yarn-error.log
 !.vscode/extensions.json
 .history/*
 
-# Miscellaneous
+# Cypress artifacts
+/cypress/downloads
+/cypress/screenshots
 /.angular/cache
 .sass-cache/
 /connect.lock

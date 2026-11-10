@@ -263,7 +263,7 @@ def start_backend_if_needed(base_url: str, jar_path: Path, max_wait_sec: int = 3
     print(f"🚀 Iniciando servidor backend Spring Boot ({jar_path.name})...")
     project_root = jar_path.resolve().parents[2]
     proc = subprocess.Popen(
-        ["java", "-jar", str(jar_path)],
+        ["java", "-Xms64m", "-Xmx256m", "-jar", str(jar_path)],
         cwd=str(project_root),
         stdout=subprocess.PIPE,
         stderr=subprocess.STDOUT,

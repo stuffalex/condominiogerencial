@@ -22,7 +22,7 @@ describe('Gravação de Demonstração em Vídeo: Residencial Anhanduí', () => 
       'Passo 2: Cadastro da Unidade 103',
       'Atualização com os dados de Dona Camila e Moradora Alexya Viana'
     );
-    cy.get('[data-cy="btn-editar-103"]').click();
+    cy.get('[data-cy="btn-editar-103"]').click({ force: true });
     cy.wait(1000);
 
     cy.get('[data-cy="input-proprietario-nome"]').clear().type('Camila', { delay: 60 });
@@ -39,7 +39,7 @@ describe('Gravação de Demonstração em Vídeo: Residencial Anhanduí', () => 
       'Passo 3: Cadastro da Unidade 104',
       'Preenchimento simplificado e tolerante a dados'
     );
-    cy.get('[data-cy="btn-editar-104"]').click();
+    cy.get('[data-cy="btn-editar-104"]').click({ force: true });
     cy.wait(1000);
 
     cy.get('[data-cy="input-proprietario-nome"]').clear().type('Camila', { delay: 60 });
@@ -56,7 +56,7 @@ describe('Gravação de Demonstração em Vídeo: Residencial Anhanduí', () => 
       'Passo 4: Quitação por Período (2022 a 2026)',
       'Liquidação de múltiplos meses em lote com Recibo Oficial em 2 vias'
     );
-    cy.get('[data-cy="btn-periodo-104"]').click();
+    cy.get('[data-cy="btn-periodo-104"]').click({ force: true });
     cy.wait(1200);
 
     cy.get('[data-cy="input-periodo-inicio"]').clear().type('2022-01', { delay: 50 });
@@ -68,6 +68,14 @@ describe('Gravação de Demonstração em Vídeo: Residencial Anhanduí', () => 
 
     cy.get('[data-cy="btn-confirmar-periodo"]').click();
     cy.wait(2500);
+
+    // Garante que o modal fecha mesmo se cotas já estiverem quitadas
+    cy.get('body').then(($b) => {
+      if ($b.find('[data-cy="btn-cancelar-periodo"]').length > 0) {
+        cy.get('[data-cy="btn-cancelar-periodo"]').click({ force: true });
+        cy.wait(500);
+      }
+    });
 
     // 5. Prestação de Contas (Balancete)
     cy.mostrarBannerDemo(

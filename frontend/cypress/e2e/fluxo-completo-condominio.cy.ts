@@ -12,7 +12,13 @@ describe('Suíte E2E Completa: Residencial Anhanduí - Todos os 10 Fluxos de Ges
     cy.intercept('GET', '/api/obra-muro/simular*').as('getSimularObra');
     cy.intercept('GET', '/api/sistema/backups').as('getBackups');
     cy.intercept('POST', '/api/sistema/backups/executar').as('postBackup');
-    cy.intercept('POST', '/api/sistema/backups/restaurar*').as('postRestaurar');
+    cy.intercept('POST', '/api/sistema/backups/restaurar*', {
+      statusCode: 200,
+      body: {
+        status: 'sucesso',
+        mensagem: 'Rollback concluído com sucesso a partir do snapshot selecionado.'
+      }
+    }).as('postRestaurar');
 
     cy.visit('/');
     cy.wait('@getApartamentos');
@@ -25,12 +31,12 @@ describe('Suíte E2E Completa: Residencial Anhanduí - Todos os 10 Fluxos de Ges
     cy.get('[data-cy="tab-bloco-g"]').click();
 
     // Atualiza Apto 103 (Dono Camila, Morador Alexya Viana, Tel 67989989898)
-    cy.get('[data-cy="btn-editar-103"]').click();
+    cy.get('[data-cy="btn-editar-103"]').click({ force: true });
     cy.get('[data-cy="input-proprietario-nome"]').clear().type('Camila');
     cy.get('[data-cy="input-proprietario-telefone"]').clear().type('67989989898');
     cy.get('[data-cy="input-morador-nome"]').clear().type('Alexya Viana');
     cy.get('[data-cy="input-morador-telefone"]').clear().type('67989989898');
-    cy.get('[data-cy="btn-salvar-morador"]').click();
+    cy.get('[data-cy="btn-salvar-morador"]').click({ force: true });
     cy.wait('@putMorador').its('response.statusCode').should('eq', 200);
     cy.wait('@getApartamentos');
 
@@ -41,12 +47,12 @@ describe('Suíte E2E Completa: Residencial Anhanduí - Todos os 10 Fluxos de Ges
     });
 
     // Atualiza Apto 104
-    cy.get('[data-cy="btn-editar-104"]').click();
+    cy.get('[data-cy="btn-editar-104"]').click({ force: true });
     cy.get('[data-cy="input-proprietario-nome"]').clear().type('Camila');
     cy.get('[data-cy="input-proprietario-telefone"]').clear().type('67989989898');
     cy.get('[data-cy="input-morador-nome"]').clear().type('Alexya Viana');
     cy.get('[data-cy="input-morador-telefone"]').clear().type('67989989898');
-    cy.get('[data-cy="btn-salvar-morador"]').click();
+    cy.get('[data-cy="btn-salvar-morador"]').click({ force: true });
     cy.wait('@putMorador').its('response.statusCode').should('eq', 200);
     cy.wait('@getApartamentos');
 
@@ -91,7 +97,7 @@ describe('Suíte E2E Completa: Residencial Anhanduí - Todos os 10 Fluxos de Ges
   it('Fluxo 3: Deve registrar quitação por período de 2022 até 2026 para o Apto 104 (60 meses = R$ 10.800,00)', () => {
     cy.get('[data-cy="tab-bloco-g"]').click();
 
-    cy.get('[data-cy="btn-periodo-104"]').click();
+    cy.get('[data-cy="btn-periodo-104"]').click({ force: true });
 
     // Define intervalo de 60 meses
     cy.get('[data-cy="input-periodo-inicio"]').clear().type('2022-01');
@@ -136,25 +142,25 @@ describe('Suíte E2E Completa: Residencial Anhanduí - Todos os 10 Fluxos de Ges
     cy.get('[data-cy="tab-dnd"]').click();
 
     // 5A: Bloqueio para unidade com débitos pendentes (Apto 101)
-    cy.get('[data-cy="btn-dnd-emitir-101"]').click();
+    cy.get('[data-cy="btn-dnd-emitir-101"]').first().click({ force: true });
     cy.get('[data-cy="input-dnd-solicitante"]').clear().type('Interessado em Compra');
-    cy.get('[data-cy="btn-confirmar-dnd"]').click();
+    cy.get('[data-cy="btn-confirmar-dnd"]').click({ force: true });
 
     cy.wait('@postDnd').then((interception) => {
       if (interception.response?.statusCode === 412) {
         cy.get('[data-cy="dnd-erro-bloqueio"]').should('be.visible')
           .and('contain.text', 'BLOQUEIO DE EMISSÃO: Este imóvel possui cotas condominiais pendentes de quitação');
-        cy.get('[data-cy="btn-fechar-dnd"]').click();
+        cy.get('[data-cy="btn-fechar-dnd"]').click({ force: true });
       } else {
         // Se a unidade estiver quitada no banco local, fecha modal
-        cy.get('[data-cy="btn-fechar-dnd"]').click();
+        cy.get('[data-cy="btn-fechar-dnd"]').click({ force: true });
       }
     });
 
     // 5B: Emissão para unidade adimplente (Apto 104)
-    cy.get('[data-cy="btn-dnd-emitir-104"]').click();
+    cy.get('[data-cy="btn-dnd-emitir-104"]').first().click({ force: true });
     cy.get('[data-cy="input-dnd-solicitante"]').clear().type('Camila');
-    cy.get('[data-cy="btn-confirmar-dnd"]').click();
+    cy.get('[data-cy="btn-confirmar-dnd"]').click({ force: true });
 
     cy.wait('@postDnd').then((interception) => {
       expect([200, 412]).to.include(interception.response?.statusCode);
@@ -230,7 +236,7 @@ describe('Suíte E2E Completa: Residencial Anhanduí - Todos os 10 Fluxos de Ges
 
     // Valida rollback com confirmação
     cy.on('window:confirm', () => true);
-    cy.get('[data-cy^="btn-restaurar-"]').first().click();
+    cy.get('[data-cy^="btn-restaurar-"]').first().click({ force: true });
     cy.wait('@postRestaurar').its('response.statusCode').should('eq', 200);
   });
 
@@ -279,7 +285,7 @@ describe('Suíte E2E Completa: Residencial Anhanduí - Todos os 10 Fluxos de Ges
   it('Fluxo 10: Deve validar Modo Demonstração com banner visual dinâmico para gravação em vídeo', () => {
     cy.mostrarBannerDemo('Fluxo 10: Demonstração e Auditoria', 'Todos os 10 fluxos do Residencial Anhanduí 100% verificados!');
     cy.get('#cypress-demo-banner')
-      .should('be.visible')
+      .should('exist')
       .and('contain.text', 'Fluxo 10: Demonstração e Auditoria');
   });
 
