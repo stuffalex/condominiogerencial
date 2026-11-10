@@ -5,6 +5,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -142,10 +144,17 @@ public class GerenciadorBackupService {
             // Cria um backup emergencial do banco atual antes de sobrescrever
             if (Files.exists(ARQUIVO_BANCO)) {
                 Path salvaguarda = PASTA_BACKUPS.resolve("condominio-pre-rollback.db");
-                Files.copy(ARQUIVO_BANCO, salvaguarda, StandardCopyOption.REPLACE_EXISTING);
+                try (InputStream in = Files.newInputStream(ARQUIVO_BANCO);
+                     OutputStream out = Files.newOutputStream(salvaguarda, java.nio.file.StandardOpenOption.CREATE, java.nio.file.StandardOpenOption.TRUNCATE_EXISTING, java.nio.file.StandardOpenOption.WRITE)) {
+                    in.transferTo(out);
+                }
             }
 
-            Files.copy(arquivoOrigem, ARQUIVO_BANCO, StandardCopyOption.REPLACE_EXISTING);
+            // Sobrescreve o conteúdo preservando o inode do arquivo aberto para evitar SQLITE_READONLY_DBMOVED
+            try (InputStream in = Files.newInputStream(arquivoOrigem);
+                 OutputStream out = Files.newOutputStream(ARQUIVO_BANCO, java.nio.file.StandardOpenOption.CREATE, java.nio.file.StandardOpenOption.TRUNCATE_EXISTING, java.nio.file.StandardOpenOption.WRITE)) {
+                in.transferTo(out);
+            }
             log.info("Rollback executado com sucesso a partir de {}", nomeArquivo);
             return true;
         } catch (IOException e) {
