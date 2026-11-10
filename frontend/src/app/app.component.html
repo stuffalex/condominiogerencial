@@ -12,47 +12,52 @@
 
     <ul class="sidebar-menu">
       <li class="sidebar-item">
-        <a class="sidebar-link" [class.active]="tabAtiva() === 'dashboard'" (click)="tabAtiva.set('dashboard')">
+        <a class="sidebar-link" [class.active]="tabAtiva() === 'dashboard'" (click)="tabAtiva.set('dashboard')" data-cy="tab-dashboard">
           <span>📊</span> Dashboard Geral
         </a>
       </li>
       <li class="sidebar-item">
-        <a class="sidebar-link" [class.active]="tabAtiva() === 'bloco-g'" (click)="tabAtiva.set('bloco-g')">
+        <a class="sidebar-link" [class.active]="tabAtiva() === 'bloco-g'" (click)="tabAtiva.set('bloco-g')" data-cy="tab-bloco-g">
           <span>🏢</span> Bloco G (12 Aptos)
         </a>
       </li>
       <li class="sidebar-item">
-        <a class="sidebar-link" [class.active]="tabAtiva() === 'bloco-h'" (click)="tabAtiva.set('bloco-h')">
+        <a class="sidebar-link" [class.active]="tabAtiva() === 'bloco-h'" (click)="tabAtiva.set('bloco-h')" data-cy="tab-bloco-h">
           <span>🏢</span> Bloco H (12 Aptos)
         </a>
       </li>
       <li class="sidebar-item">
-        <a class="sidebar-link" [class.active]="tabAtiva() === 'caixa'" (click)="tabAtiva.set('caixa')">
+        <a class="sidebar-link" [class.active]="tabAtiva() === 'caixa'" (click)="tabAtiva.set('caixa')" data-cy="tab-caixa">
           <span>💵</span> Caixa & Recibos Físicos
         </a>
       </li>
       <li class="sidebar-item">
-        <a class="sidebar-link" [class.active]="tabAtiva() === 'muro'" (click)="tabAtiva.set('muro')">
-          <span>🧱</span> Simulador da Obra do Muro
+        <a class="sidebar-link" [class.active]="tabAtiva() === 'muro'" (click)="tabAtiva.set('muro')" data-cy="tab-muro">
+          <span>🏗️</span> Obras, Serviços & Caixa
         </a>
       </li>
       <li class="sidebar-item">
-        <a class="sidebar-link" [class.active]="tabAtiva() === 'dnd'" (click)="tabAtiva.set('dnd')">
+        <a class="sidebar-link" [class.active]="tabAtiva() === 'dnd'" (click)="tabAtiva.set('dnd')" data-cy="tab-dnd">
           <span>📄</span> Declaração DND (Certidão)
         </a>
       </li>
       <li class="sidebar-item">
-        <a class="sidebar-link" [class.active]="tabAtiva() === 'documentos'" (click)="tabAtiva.set('documentos')">
+        <a class="sidebar-link" [class.active]="tabAtiva() === 'documentos'" (click)="tabAtiva.set('documentos')" data-cy="tab-documentos">
           <span>📁</span> Arquivo Físico & Digital
         </a>
       </li>
       <li class="sidebar-item">
-        <a class="sidebar-link" [class.active]="tabAtiva() === 'balancete'" (click)="tabAtiva.set('balancete')">
+        <a class="sidebar-link" [class.active]="tabAtiva() === 'balancete'" (click)="tabAtiva.set('balancete')" data-cy="tab-balancete">
           <span>📋</span> Balancete & Prestação
         </a>
       </li>
       <li class="sidebar-item">
-        <a class="sidebar-link" (click)="abrirModalPeriodo()" style="cursor: pointer;">
+        <a class="sidebar-link" [class.active]="tabAtiva() === 'institucional'" (click)="tabAtiva.set('institucional')" data-cy="tab-institucional">
+          <span>🏛️</span> Painel Institucional & Proposta
+        </a>
+      </li>
+      <li class="sidebar-item">
+        <a class="sidebar-link" (click)="abrirModalPeriodo()" style="cursor: pointer;" data-cy="tab-periodo">
           <span>🗓️</span> Quitar por Período
         </a>
       </li>
@@ -113,10 +118,10 @@
             <span class="stat-meta">Aguardando entrega de recibo em mãos</span>
           </div>
 
-          <div class="stat-card">
-            <span class="stat-label">Meta da Obra do Muro</span>
-            <span class="stat-value" style="color: #1e3a8a;">R$ {{ muroCustoTotal | number:'1.2-2' }}</span>
-            <span class="stat-meta">Orçamento estimado para o muro</span>
+          <div class="stat-card" data-cy="card-dashboard-meta-obra">
+            <span class="stat-label">Meta da Obra / Serviço</span>
+            <span class="stat-value" style="color: #1e3a8a;">R$ {{ obraCustoTotalComposto | number:'1.2-2' }}</span>
+            <span class="stat-meta">Orçamento composto da meta ativa</span>
           </div>
         </div>
 
@@ -268,35 +273,41 @@
           <div class="apartamentos-grid">
             <div *ngFor="let apto of obterAptosPorBlocoEAndar('BLOCO_G', 0)" class="apto-card"
                  [class.status-paga]="obterCotaApartamento(apto.id)?.status === 'PAGA'"
-                 [class.status-pendente]="obterCotaApartamento(apto.id)?.status !== 'PAGA'">
+                 [class.status-pendente]="obterCotaApartamento(apto.id)?.status !== 'PAGA'"
+                 [attr.data-cy]="'apto-card-' + apto.numero">
               <div class="apto-top">
                 <span class="apto-numero">Apto {{ apto.numero }}</span>
                 <span class="badge" [class.badge-success]="obterCotaApartamento(apto.id)?.status === 'PAGA'"
-                                   [class.badge-danger]="obterCotaApartamento(apto.id)?.status !== 'PAGA'">
+                                   [class.badge-danger]="obterCotaApartamento(apto.id)?.status !== 'PAGA'"
+                                   [attr.data-cy]="'badge-status-' + apto.numero">
                   {{ obterCotaApartamento(apto.id)?.status === 'PAGA' ? 'PAGO' : 'EM ABERTO' }}
                 </span>
               </div>
               <div class="apto-info">
                 <div>🚗 Vaga Garagem: <strong>{{ apto.vagaGaragem }}</strong></div>
-                <div>🔑 Proprietário: <strong>{{ apto.proprietario.nome }}</strong></div>
-                <div>👤 Morador: <strong>{{ apto.morador.nome }}</strong></div>
-                <div *ngIf="apto.morador.telefone && apto.morador.telefone !== 'Não informado'">
+                <div>🔑 Proprietário: <strong [attr.data-cy]="'proprietario-nome-' + apto.numero">{{ apto.proprietario.nome }}</strong></div>
+                <div>👤 Morador: <strong [attr.data-cy]="'morador-nome-' + apto.numero">{{ apto.morador.nome }}</strong></div>
+                <div *ngIf="apto.morador.telefone && apto.morador.telefone !== 'Não informado'" [attr.data-cy]="'morador-telefone-' + apto.numero">
                   📞 Tel: {{ apto.morador.telefone }}
                 </div>
               </div>
               <div style="margin-top: 10px; display: flex; flex-wrap: wrap; gap: 6px;">
                 <button *ngIf="obterCotaApartamento(apto.id)?.status !== 'PAGA'"
                         class="btn btn-success btn-sm" style="flex: 1;"
-                        (click)="abrirModalPagamento(apto)">
+                        (click)="abrirModalPagamento(apto)"
+                        [attr.data-cy]="'btn-receber-' + apto.numero">
                   💵 Receber R$ 180
                 </button>
-                <button class="btn btn-outline btn-sm" (click)="abrirModalPeriodo(apto)" title="Quitar múltiplos meses">
+                <button class="btn btn-outline btn-sm" (click)="abrirModalPeriodo(apto)" title="Quitar múltiplos meses"
+                        [attr.data-cy]="'btn-periodo-' + apto.numero">
                   🗓️ Período
                 </button>
-                <button class="btn btn-outline btn-sm" (click)="abrirModalMorador(apto)">
+                <button class="btn btn-outline btn-sm" (click)="abrirModalMorador(apto)"
+                        [attr.data-cy]="'btn-editar-' + apto.numero">
                   ✏️ Editar
                 </button>
-                <button class="btn btn-outline btn-sm" (click)="abrirModalDnd(apto)" title="Emitir DND">
+                <button class="btn btn-outline btn-sm" (click)="abrirModalDnd(apto)" title="Emitir DND"
+                        [attr.data-cy]="'btn-dnd-' + apto.numero">
                   📄 DND
                 </button>
               </div>
@@ -678,46 +689,170 @@
         </div>
       </section>
 
-      <!-- TAB 4: SIMULADOR DA OBRA DO MURO -->
-      <section *ngIf="tabAtiva() === 'muro'">
+      <!-- TAB 4: METAS, OBRAS & PREVISÃO DE CAIXA -->
+      <section *ngIf="tabAtiva() === 'muro'" data-cy="secao-obras-metas">
         <div class="card">
           <div class="card-header">
             <div>
-              <h2 class="card-title">Simulador da Obra do Muro dos Blocos G e H</h2>
+              <h2 class="card-title">🏗️ Gestão de Metas, Obras & Previsão de Caixa</h2>
               <p style="color: var(--text-muted); font-size: 0.85rem;">
-                Projeção orçamentária e cálculo de meses necessários sob cenários de 100%, 70% e 50% de adesão das 24 unidades.
+                Planeje metas e obras com orçamento composto (Mão de Obra + Materiais), previsão financeira do caixa e cenários de adesão.
               </p>
             </div>
-            <button class="btn btn-primary btn-sm" (click)="carregarSimulacaoMuro()">
-              Recalcular Projeção
-            </button>
-          </div>
-
-          <!-- Controles de Simulação -->
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; background: #f8fafc; padding: 20px; border-radius: 8px; margin-bottom: 24px;">
-            <div class="form-group" style="margin-bottom: 0;">
-              <label class="form-label">Custo Total Estimado da Obra (R$):</label>
-              <input type="number" class="form-control" [(ngModel)]="muroCustoTotal" (change)="carregarSimulacaoMuro()">
-              <small style="color: var(--text-muted);">Mão de obra + blocos + ferragem + portão (ex: R$ 30.000,00)</small>
-            </div>
-
-            <div class="form-group" style="margin-bottom: 0;">
-              <label class="form-label">Cota Extra Mensal Sugerida por Unidade (R$):</label>
-              <select class="form-control" [(ngModel)]="muroCotaSugerida" (change)="carregarSimulacaoMuro()">
-                <option [ngValue]="100.00">R$ 100,00 / mês por apartamento</option>
-                <option [ngValue]="150.00">R$ 150,00 / mês por apartamento</option>
-                <option [ngValue]="200.00">R$ 200,00 / mês por apartamento</option>
-                <option [ngValue]="250.00">R$ 250,00 / mês por apartamento</option>
-              </select>
-              <small style="color: var(--text-muted);">Defina o valor da parcela que cabe no bolso dos moradores</small>
+            <div style="display: flex; gap: 8px;">
+              <button class="btn btn-outline btn-sm" (click)="modalNovaMetaAberto.set(true)" data-cy="btn-abrir-nova-meta">
+                ➕ Nova Meta / Obra
+              </button>
+              <button class="btn btn-primary btn-sm" (click)="carregarSimulacaoMuro()" data-cy="btn-recalcular-obra">
+                🔄 Recalcular Projeção do Caixa & Obra
+              </button>
             </div>
           </div>
 
-          <!-- Cards dos 3 Cenários -->
+          <!-- Seletor de Metas -->
+          <div style="display: flex; gap: 10px; margin-bottom: 20px; align-items: center; flex-wrap: wrap;">
+            <span style="font-weight: 700; color: #1e3a8a; font-size: 0.9rem;">🎯 Selecionar Meta Ativa:</span>
+            <div class="filter-pills">
+              <button *ngFor="let m of metas()" class="pill-btn"
+                      [class.active]="metaSelecionadaId() === m.id"
+                      (click)="selecionarMeta(m.id)"
+                      [attr.data-cy]="'pill-meta-' + m.id">
+                {{ m.nome }}
+              </button>
+            </div>
+          </div>
+
+          <!-- 1. Dados da Obra & Prestador -->
+          <div style="background: #f8fafc; padding: 20px; border-radius: 8px; margin-bottom: 24px; border: 1px solid var(--border);">
+            <h3 style="font-size: 1rem; color: #1e3a8a; margin-bottom: 14px; font-weight: 700;">
+              📋 1. Composição de Custos & Prestador do Serviço
+            </h3>
+            <div style="display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 16px; margin-bottom: 16px;">
+              <div class="form-group" style="margin-bottom: 0;">
+                <label class="form-label">Nome / Título da Meta:</label>
+                <input type="text" class="form-control" [ngModel]="obraTitulo()" (ngModelChange)="obraTitulo.set($event)" data-cy="input-obra-titulo">
+              </div>
+              <div class="form-group" style="margin-bottom: 0;">
+                <label class="form-label">Valor Mão de Obra (R$):</label>
+                <input type="number" class="form-control" [ngModel]="obraMaoDeObra()" (ngModelChange)="obraMaoDeObra.set($event)" (change)="carregarSimulacaoMuro()" data-cy="input-obra-mao-de-obra">
+              </div>
+              <div class="form-group" style="margin-bottom: 0;">
+                <label class="form-label">Valor dos Materiais (R$):</label>
+                <input type="number" class="form-control" [ngModel]="obraMaterial()" (ngModelChange)="obraMaterial.set($event)" (change)="carregarSimulacaoMuro()" data-cy="input-obra-material">
+              </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px;">
+              <div class="form-group" style="margin-bottom: 0;">
+                <label class="form-label">Tempo de Serviço Estimado (Meses):</label>
+                <input type="number" class="form-control" [ngModel]="obraTempoServico()" (ngModelChange)="obraTempoServico.set($event)" placeholder="Opcional (ex: 3)" data-cy="input-obra-tempo-servico">
+              </div>
+              <div class="form-group" style="margin-bottom: 0;">
+                <label class="form-label">Servidor / Prestador Responsável:</label>
+                <input type="text" class="form-control" [ngModel]="obraPrestadorNome()" (ngModelChange)="obraPrestadorNome.set($event)" placeholder="Nome do profissional / empreiteira" data-cy="input-obra-prestador-nome">
+              </div>
+              <div class="form-group" style="margin-bottom: 0;">
+                <label class="form-label">Telefone / WhatsApp do Prestador:</label>
+                <input type="text" class="form-control" [ngModel]="obraPrestadorTelefone()" (ngModelChange)="obraPrestadorTelefone.set($event)" placeholder="(67) 9..." data-cy="input-obra-prestador-telefone">
+              </div>
+            </div>
+          </div>
+
+          <!-- 2. Previsão de Caixa e Contas Mensais -->
+          <div style="background: #eff6ff; padding: 20px; border-radius: 8px; margin-bottom: 24px; border: 1px solid #bfdbfe;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; flex-wrap: wrap; gap: 10px;">
+              <h3 style="font-size: 1rem; color: #1e3a8a; margin-bottom: 0; font-weight: 700;">
+                💵 2. Previsão de Separação do Caixa & Contas Mensais
+              </h3>
+              <button class="btn btn-primary btn-sm" (click)="carregarSimulacaoMuro()" data-cy="btn-recalcular-caixa">
+                🔄 Recalcular Caixa
+              </button>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-bottom: 16px;">
+              <div class="form-group" style="margin-bottom: 0;">
+                <label class="form-label">Saldo Atual em Caixa (R$):</label>
+                <input type="number" class="form-control" [ngModel]="caixaSaldoAtual()" (ngModelChange)="caixaSaldoAtual.set($event)" (change)="carregarSimulacaoMuro()" data-cy="input-caixa-saldo-atual">
+                <small style="color: var(--text-muted);">Disponível hoje na conta/em espécie</small>
+              </div>
+              <div class="form-group" style="margin-bottom: 0;">
+                <label class="form-label">Contas Previsíveis / Fixas (R$/mês):</label>
+                <input type="number" class="form-control" [ngModel]="caixaDespesasPrevisiveis()" (ngModelChange)="caixaDespesasPrevisiveis.set($event)" (change)="carregarSimulacaoMuro()" data-cy="input-caixa-previsiveis">
+                <small style="color: var(--text-muted);">Água, luz comum, limpeza ordinária</small>
+              </div>
+              <div class="form-group" style="margin-bottom: 0;">
+                <label class="form-label">Contas Não Previsíveis (R$/mês):</label>
+                <input type="number" class="form-control" [ngModel]="caixaDespesasNaoPrevisiveis()" (ngModelChange)="caixaDespesasNaoPrevisiveis.set($event)" (change)="carregarSimulacaoMuro()" data-cy="input-caixa-nao-previsiveis">
+                <small style="color: var(--text-muted);">Fundo de contingência e emergências</small>
+              </div>
+            </div>
+
+            <!-- Cards de Resultados do Caixa -->
+            <div class="stats-grid" style="margin-top: 16px;">
+              <div class="stat-card" style="background: #ffffff;" data-cy="card-obra-custo-total">
+                <span class="stat-label">Custo Total da Meta</span>
+                <span class="stat-value" style="color: #1e3a8a;">R$ {{ planoMuro()?.custoTotalEstimado | number:'1.2-2' }}</span>
+                <span class="stat-meta">Mão de Obra (R$ {{ planoMuro()?.valorMaoDeObra | number:'1.2-2' }}) + Materiais (R$ {{ planoMuro()?.valorMaterial | number:'1.2-2' }})</span>
+              </div>
+
+              <div class="stat-card" style="background: #ffffff;" data-cy="card-caixa-credito">
+                <span class="stat-label">Total Entradas (Crédito)</span>
+                <span class="stat-value" style="color: #059669;">R$ {{ planoMuro()?.creditoTotal | number:'1.2-2' }}</span>
+                <span class="stat-meta">Saldo inicial + cotas ordinárias e extras</span>
+              </div>
+
+              <div class="stat-card" style="background: #ffffff;" data-cy="card-caixa-debito">
+                <span class="stat-label">Total Saídas (Débito)</span>
+                <span class="stat-value" style="color: #dc2626;">R$ {{ planoMuro()?.debitoTotal | number:'1.2-2' }}</span>
+                <span class="stat-meta">Contas mensais somadas ao custo da obra</span>
+              </div>
+
+              <div class="stat-card" style="background: #ffffff;" data-cy="card-caixinha-obra">
+                <span class="stat-label">Caixinha da Obra Separada</span>
+                <span class="stat-value" style="color: #7c3aed;">R$ {{ planoMuro()?.caixinhaObraProjetada | number:'1.2-2' }}</span>
+                <span class="stat-meta">Fundo acumulado exclusivo p/ este projeto</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- 3. Modalidade de Adesão -->
+          <div style="background: #f8fafc; padding: 20px; border-radius: 8px; margin-bottom: 24px; border: 1px solid var(--border);">
+            <h3 style="font-size: 1rem; color: #1e3a8a; margin-bottom: 14px; font-weight: 700;">
+              📊 3. Modalidade de Cálculo da Adesão dos Moradores
+            </h3>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+              <div class="form-group" style="margin-bottom: 0;">
+                <label class="form-label">Como deseja calcular a arrecadação?</label>
+                <select class="form-control" [ngModel]="tipoCalculoAdesao()" (ngModelChange)="tipoCalculoAdesao.set($event); carregarSimulacaoMuro();" data-cy="select-tipo-calculo-adesao">
+                  <option value="POR_VALOR_PARCELA">Calcular Prazo pelo Valor da Parcela (Cota Extra)</option>
+                  <option value="POR_TEMPO_PRAZO">Calcular Valor da Parcela pelo Prazo Desejado</option>
+                </select>
+                <small style="color: var(--text-muted);">Alterne entre fixar a parcela ou fixar o tempo</small>
+              </div>
+
+              <div *ngIf="tipoCalculoAdesao() === 'POR_VALOR_PARCELA'" class="form-group" style="margin-bottom: 0;">
+                <label class="form-label">Valor Sugerido da Cota Extra Mensal (R$/mês):</label>
+                <input type="number" class="form-control" [ngModel]="muroCotaSugerida()" (ngModelChange)="muroCotaSugerida.set($event)" (change)="carregarSimulacaoMuro()" data-cy="input-obra-cota-sugerida">
+                <small style="color: var(--text-muted);">Ex: R$ 100, R$ 150 ou R$ 200 por apartamento</small>
+              </div>
+
+              <div *ngIf="tipoCalculoAdesao() === 'POR_TEMPO_PRAZO'" class="form-group" style="margin-bottom: 0;">
+                <label class="form-label">Prazo Desejado para Juntar / Entregar (Meses):</label>
+                <input type="number" class="form-control" [ngModel]="obraMesesDesejados()" (ngModelChange)="obraMesesDesejados.set($event)" (change)="carregarSimulacaoMuro()" data-cy="input-obra-meses-desejados">
+                <small style="color: var(--text-muted);">Ex: Quero concluir em 12 ou 18 meses</small>
+              </div>
+            </div>
+          </div>
+
+          <!-- 4. Cenários de Adesão -->
+          <h3 style="font-size: 1rem; color: #1e3a8a; margin-bottom: 14px; font-weight: 700;">
+            📈 4. Projeção dos Cenários de Adesão (24 Unidades)
+          </h3>
           <div *ngIf="planoMuro()" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; margin-bottom: 24px;">
-            <div *ngFor="let cenario of planoMuro()?.cenarios" class="card"
+            <div *ngFor="let cenario of planoMuro()?.cenarios; let i = index" class="card"
                  [style.border-top]="cenario.percentualAdesao === 100 ? '4px solid #059669' : (cenario.percentualAdesao === 70 ? '4px solid #3b82f6' : '4px solid #d97706')"
-                 style="margin-bottom: 0;">
+                 style="margin-bottom: 0;"
+                 [attr.data-cy]="'cenario-adesao-' + cenario.percentualAdesao">
               <div style="font-size: 1.1rem; font-weight: 700; margin-bottom: 12px; color: var(--text-main);">
                 {{ cenario.descricao }}
               </div>
@@ -729,23 +864,28 @@
                 </div>
 
                 <div style="display: flex; justify-content: space-between;">
+                  <span style="color: var(--text-muted);">Cota por Unidade:</span>
+                  <strong style="color: #1e3a8a; font-size: 1.05rem;">R$ {{ cenario.valorParcelaSugerida | number:'1.2-2' }}/mês</strong>
+                </div>
+
+                <div style="display: flex; justify-content: space-between;">
                   <span style="color: var(--text-muted);">Arrecadação Mensal:</span>
                   <strong style="color: #059669;">R$ {{ cenario.arrecadacaoMensal | number:'1.2-2' }}</strong>
                 </div>
 
                 <div style="display: flex; justify-content: space-between;">
-                  <span style="color: var(--text-muted);">Prazo Estimado:</span>
+                  <span style="color: var(--text-muted);">Tempo p/ Juntar:</span>
                   <strong style="font-size: 1.15rem; color: #1e3a8a;">{{ cenario.mesesNecessarios }} meses</strong>
                 </div>
 
                 <div style="display: flex; justify-content: space-between; border-top: 1px dashed var(--border); padding-top: 8px;">
-                  <span style="color: var(--text-muted);">Custo p/ Unidade Aderente:</span>
+                  <span style="color: var(--text-muted);">Custo Rateado p/ Aderente:</span>
                   <span>R$ {{ cenario.custoTotalPorUnidade | number:'1.2-2' }}</span>
                 </div>
               </div>
 
               <div style="margin-top: 16px; background: #f8fafc; padding: 10px; border-radius: 6px; font-size: 0.8rem; color: #475569;">
-                💡 <em>{{ cenario.percentualAdesao === 100 ? 'Cenário ideal: 100% dos moradores participam da cota.' : (cenario.percentualAdesao === 70 ? 'Cenário realista com ~5 inadimplentes previstos.' : 'Cenário de contingência crítica com metade dos blocos pagando.') }}</em>
+                💡 <em>{{ cenario.percentualAdesao === 100 ? 'Cenário ideal: 100% dos moradores participam da cota.' : (cenario.percentualAdesao === 70 ? 'Cenário realista com adesão de 70% dos moradores.' : 'Cenário de contingência crítica com metade dos blocos pagando.') }}</em>
               </div>
             </div>
           </div>
@@ -881,7 +1021,7 @@
                 Fechamento de caixa do mês para transparência e colagem no quadro de avisos dos Blocos G e H.
               </p>
             </div>
-            <button class="btn btn-success btn-sm" (click)="baixarBalancetePdf()">
+            <button class="btn btn-success btn-sm" (click)="baixarBalancetePdf()" data-cy="btn-baixar-balancete-pdf">
               🖨️ Baixar Balancete em PDF (1 Página)
             </button>
           </div>
@@ -889,25 +1029,25 @@
           <div style="background: #f8fafc; padding: 20px; border-radius: 8px; margin-bottom: 24px; display: flex; gap: 20px; align-items: center;">
             <div class="form-group" style="margin-bottom: 0;">
               <label class="form-label">Despesas Operacionais do Mês (R$):</label>
-              <input type="number" class="form-control" [(ngModel)]="balanceteDespesas" (change)="carregarBalancete()" style="width: 220px;">
+              <input type="number" class="form-control" [(ngModel)]="balanceteDespesas" (change)="carregarBalancete()" style="width: 220px;" data-cy="input-balancete-despesas">
               <small style="color: var(--text-muted);">Água, luz comum, limpeza, materiais</small>
             </div>
           </div>
 
           <div *ngIf="balancete()" class="stats-grid">
-            <div class="stat-card">
+            <div class="stat-card" data-cy="card-arrecadacao-total">
               <span class="stat-label">Total Arrecadado (Cotas)</span>
               <span class="stat-value" style="color: #059669;">R$ {{ balancete()?.totalArrecadadoTaxaOrdinaria | number:'1.2-2' }}</span>
               <span class="stat-meta">{{ balancete()?.totalAdimplentes }} cotas quitadas a R$ 180,00</span>
             </div>
 
-            <div class="stat-card">
+            <div class="stat-card" data-cy="card-despesas-totais">
               <span class="stat-label">Despesas Totais</span>
               <span class="stat-value" style="color: #dc2626;">R$ {{ balancete()?.totalDespesas | number:'1.2-2' }}</span>
               <span class="stat-meta">Gastos comprovados com notas/recibos</span>
             </div>
 
-            <div class="stat-card">
+            <div class="stat-card" data-cy="card-saldo-liquido">
               <span class="stat-label">Saldo Líquido em Caixa</span>
               <span class="stat-value" [style.color]="(balancete()?.saldoMes || 0) >= 0 ? '#059669' : '#dc2626'">
                 R$ {{ balancete()?.saldoMes | number:'1.2-2' }}
@@ -918,12 +1058,130 @@
 
           <div *ngIf="balancete()" style="margin-top: 16px;">
             <h4 style="font-size: 1rem; margin-bottom: 12px; color: var(--text-main);">Demonstrativo do Fechamento:</h4>
-            <ul style="list-style: none; padding-left: 0;">
+            <ul style="list-style: none; padding-left: 0;" data-cy="lista-demonstrativo">
               <li *ngFor="let linha of balancete()?.demonstrativoLinhas"
                   style="padding: 10px 14px; background: #ffffff; border: 1px solid var(--border); border-radius: 6px; margin-bottom: 8px; font-size: 0.9rem;">
                 📌 {{ linha }}
               </li>
             </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 8: PAINEL INSTITUCIONAL, SEGURANÇA E PROPOSTA DE VALOR -->
+      <section *ngIf="tabAtiva() === 'institucional'" data-cy="secao-institucional">
+        <div class="card" style="border-left: 4px solid #1e3a8a; margin-bottom: 24px;">
+          <div class="card-header">
+            <div>
+              <h2 class="card-title">🏛️ Painel Institucional, Segurança & Proposta Comunitária</h2>
+              <p style="color: var(--text-muted); font-size: 0.9rem;">
+                Residencial Anhanduí • Blocos G e H (24 Apartamentos) • Projeto de Gestão Autônoma e Transparente
+              </p>
+            </div>
+            <span class="badge badge-success" style="font-size: 0.9rem;">Sistema 100% Doado & Open-Source</span>
+          </div>
+
+          <!-- Cards de Proposta de Valor -->
+          <div class="stats-grid" style="margin-bottom: 24px;">
+            <div class="stat-card" style="border-left: 4px solid #059669;" data-cy="card-seguranca-offline">
+              <span class="stat-label">🔒 Segurança 100% Offline</span>
+              <span class="stat-value" style="color: #059669; font-size: 1.35rem;">Roda em Pendrive</span>
+              <span class="stat-meta">Zero internet. Sem risco de vazamento de dados ou sequestro digital de arquivos.</span>
+            </div>
+
+            <div class="stat-card" style="border-left: 4px solid #1e3a8a;" data-cy="card-economia-condominial">
+              <span class="stat-label">💰 Economia Condominial</span>
+              <span class="stat-value" style="color: #1e3a8a; font-size: 1.35rem;">R$ 5.000 a 7.000</span>
+              <span class="stat-meta">Valor de mercado economizado pelo condomínio. Software entregue gratuitamente.</span>
+            </div>
+
+            <div class="stat-card" style="border-left: 4px solid #7c3aed;" data-cy="card-ganho-tempo">
+              <span class="stat-label">⏱️ Ganho de Tempo & Organização</span>
+              <span class="stat-value" style="color: #7c3aed; font-size: 1.35rem;">Busca Instantânea</span>
+              <span class="stat-meta">Fim dos recibos perdidos em gavetas. Emissão em 2 vias e balancete pronto em 1 clique.</span>
+            </div>
+
+            <div class="stat-card" style="border-left: 4px solid #d97706;" data-cy="card-suporte-diretoria">
+              <span class="stat-label">👵 Acolhimento da Diretoria</span>
+              <span class="stat-value" style="color: #d97706; font-size: 1.35rem;">6 Meses de Suporte</span>
+              <span class="stat-meta">Apoio voluntário presencial para treinar e capacitar a diretoria idosa.</span>
+            </div>
+          </div>
+
+          <!-- Detalhamento Institucional -->
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 24px;">
+            <div style="background: #f8fafc; padding: 20px; border-radius: 8px; border: 1px solid var(--border);">
+              <h3 style="color: #1e3a8a; font-size: 1.05rem; font-weight: 700; margin-bottom: 10px;">
+                🤝 Projeto Aberto & Melhorias via GitHub
+              </h3>
+              <p style="color: #334155; font-size: 0.9rem; line-height: 1.6;">
+                Este sistema foi desenvolvido como uma iniciativa <strong>open-source</strong> e transparente.
+                Qualquer melhoria, ajuste de regra ou evolução futura deve ser solicitado de forma transparente no GitHub.
+                Caso o condomínio necessite de manutenção técnica contínua após a fase de implantação, será cobrada uma taxa puramente simbólica de <strong>R$ 200,00 mensais</strong>, permitindo sustentabilidade com custo 10 vezes menor que qualquer solução de mercado.
+              </p>
+            </div>
+
+            <div style="background: #f8fafc; padding: 20px; border-radius: 8px; border: 1px solid var(--border);">
+              <h3 style="color: #1e3a8a; font-size: 1.05rem; font-weight: 700; margin-bottom: 10px;">
+                🛡️ Salvaguarda com Backups Automáticos & Rollback
+              </h3>
+              <p style="color: #334155; font-size: 0.9rem; line-height: 1.6;">
+                Para que a diretoria idosa tenha total tranquilidade ao cadastrar ou alterar informações, o sistema gera automaticamente uma <strong>cópia de segurança (backup)</strong> a cada inicialização na pasta <code>data/backups/</code>.
+                O sistema mantém os últimos 3 backups rotativos, garantindo que qualquer erro possa ser revertido imediatamente com um clique.
+              </p>
+            </div>
+          </div>
+
+          <!-- Painel dos 3 Backups Rotativos -->
+          <div style="background: #ffffff; border: 1px solid var(--border); padding: 20px; border-radius: 8px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 10px;">
+              <div>
+                <h4 style="font-size: 1rem; color: #1e3a8a; font-weight: 700; margin-bottom: 4px;">
+                  💾 Backups Recentes do Sistema (Últimos 3 Mantidos)
+                </h4>
+                <small style="color: var(--text-muted);">Cópias físicas salvas na pasta data/backups/ do pendrive</small>
+              </div>
+              <div style="display: flex; gap: 8px;">
+                <button class="btn btn-outline btn-sm" (click)="carregarBackups()" data-cy="btn-atualizar-backups">
+                  🔄 Atualizar Lista
+                </button>
+                <button class="btn btn-primary btn-sm" (click)="dispararBackupManual()" data-cy="btn-backup-manual">
+                  💾 Criar Backup Imediato
+                </button>
+              </div>
+            </div>
+
+            <div class="table-responsive">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th>Arquivo de Backup</th>
+                    <th>Tamanho</th>
+                    <th>Data / Hora do Snapshot</th>
+                    <th>Ações de Salvaguarda</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let b of backups()" [attr.data-cy]="'item-backup-' + b.nomeArquivo">
+                    <td><strong>📁 {{ b.nomeArquivo }}</strong></td>
+                    <td>{{ (b.tamanhoBytes / 1024) | number:'1.0-1' }} KB</td>
+                    <td>{{ b.dataCriacao }}</td>
+                    <td>
+                      <button class="btn btn-outline btn-sm" style="color: #dc2626; border-color: #f87171;"
+                              (click)="restaurarBackup(b.nomeArquivo)"
+                              [attr.data-cy]="'btn-restaurar-' + b.nomeArquivo">
+                        ⏪ Restaurar (Rollback)
+                      </button>
+                    </td>
+                  </tr>
+                  <tr *ngIf="backups().length === 0">
+                    <td colspan="4" style="text-align: center; color: var(--text-muted); padding: 20px;">
+                      Nenhum backup arquivado ainda. O sistema cria automaticamente ao ligar.
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
       </section>
@@ -987,11 +1245,11 @@
     <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 10px;">
       <div class="form-group">
         <label class="form-label">Nome do Proprietário:</label>
-        <input type="text" class="form-control" [(ngModel)]="formProprietarioNome" placeholder="Ex: João da Silva">
+        <input type="text" class="form-control" [(ngModel)]="formProprietarioNome" placeholder="Ex: João da Silva" data-cy="input-proprietario-nome">
       </div>
       <div class="form-group">
         <label class="form-label">Telefone / WhatsApp:</label>
-        <input type="text" class="form-control" [(ngModel)]="formProprietarioTelefone" placeholder="(67) 9...">
+        <input type="text" class="form-control" [(ngModel)]="formProprietarioTelefone" placeholder="(67) 9..." data-cy="input-proprietario-telefone">
       </div>
     </div>
 
@@ -999,17 +1257,17 @@
     <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 10px;">
       <div class="form-group">
         <label class="form-label">Nome do Morador Atual:</label>
-        <input type="text" class="form-control" [(ngModel)]="formMoradorNome" placeholder="Ex: Maria Pereira">
+        <input type="text" class="form-control" [(ngModel)]="formMoradorNome" placeholder="Ex: Maria Pereira" data-cy="input-morador-nome">
       </div>
       <div class="form-group">
         <label class="form-label">Telefone / WhatsApp:</label>
-        <input type="text" class="form-control" [(ngModel)]="formMoradorTelefone" placeholder="(67) 9...">
+        <input type="text" class="form-control" [(ngModel)]="formMoradorTelefone" placeholder="(67) 9..." data-cy="input-morador-telefone">
       </div>
     </div>
 
     <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px;">
-      <button class="btn btn-outline" (click)="modalMoradorAberto.set(false)">Cancelar</button>
-      <button class="btn btn-primary" (click)="salvarMorador()">Salvar Cadastro</button>
+      <button class="btn btn-outline" (click)="modalMoradorAberto.set(false)" data-cy="btn-cancelar-morador">Cancelar</button>
+      <button class="btn btn-primary" (click)="salvarMorador()" data-cy="btn-salvar-morador">Salvar Cadastro</button>
     </div>
   </div>
 </div>
@@ -1106,7 +1364,7 @@
 
     <div class="form-group">
       <label class="form-label">Apartamento / Unidade:</label>
-      <select class="form-control" [(ngModel)]="periodoAptoId">
+      <select class="form-control" [(ngModel)]="periodoAptoId" data-cy="select-periodo-apto">
         <option *ngFor="let apto of apartamentos()" [value]="apto.id">
           {{ apto.bloco === 'BLOCO_G' ? 'Bloco G' : 'Bloco H' }} - Apto {{ apto.numero }} (Morador: {{ apto.morador.nome }})
         </option>
@@ -1116,18 +1374,18 @@
     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
       <div class="form-group">
         <label class="form-label">Mês Inicial (De):</label>
-        <input type="month" class="form-control" [(ngModel)]="periodoMesInicio">
+        <input type="month" class="form-control" [(ngModel)]="periodoMesInicio" data-cy="input-periodo-inicio">
       </div>
       <div class="form-group">
         <label class="form-label">Mês Final (Até):</label>
-        <input type="month" class="form-control" [(ngModel)]="periodoMesFim">
+        <input type="month" class="form-control" [(ngModel)]="periodoMesFim" data-cy="input-periodo-fim">
       </div>
     </div>
 
     <div style="background: #f8fafc; border: 1px dashed var(--border); padding: 14px; border-radius: 6px; margin-bottom: 16px;">
       <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
         <span style="color: var(--text-muted); font-size: 0.9rem;">Total de Meses no Intervalo:</span>
-        <strong>{{ periodoCalculoMeses }} meses</strong>
+        <strong data-cy="periodo-total-meses">{{ periodoCalculoMeses }} meses</strong>
       </div>
       <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
         <span style="color: var(--text-muted); font-size: 0.9rem;">Valor Base por Mês:</span>
@@ -1135,23 +1393,23 @@
       </div>
       <div style="display: flex; justify-content: space-between; border-top: 1px solid var(--border); padding-top: 6px;">
         <span style="font-weight: 700; color: var(--text-main);">Valor Total a Receber:</span>
-        <strong style="color: #059669; font-size: 1.25rem;">R$ {{ periodoValorTotal | number:'1.2-2' }}</strong>
+        <strong style="color: #059669; font-size: 1.25rem;" data-cy="periodo-valor-total">R$ {{ periodoValorTotal | number:'1.2-2' }}</strong>
       </div>
     </div>
 
     <div class="form-group">
       <label class="form-label">Recebido por:</label>
-      <input type="text" class="form-control" [(ngModel)]="periodoRecebidoPor">
+      <input type="text" class="form-control" [(ngModel)]="periodoRecebidoPor" data-cy="input-periodo-recebido-por">
     </div>
 
     <div class="form-group">
       <label class="form-label">Observação / Justificativa no Recibo:</label>
-      <input type="text" class="form-control" [(ngModel)]="periodoObservacao">
+      <input type="text" class="form-control" [(ngModel)]="periodoObservacao" data-cy="input-periodo-observacao">
     </div>
 
     <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 24px;">
-      <button class="btn btn-outline" (click)="fecharModalPeriodo()">Cancelar</button>
-      <button class="btn btn-success" (click)="confirmarPagamentoPeriodo()" [disabled]="periodoCalculoMeses <= 0">
+      <button class="btn btn-outline" (click)="fecharModalPeriodo()" data-cy="btn-cancelar-periodo">Cancelar</button>
+      <button class="btn btn-success" (click)="confirmarPagamentoPeriodo()" [disabled]="periodoCalculoMeses <= 0" data-cy="btn-confirmar-periodo">
         🖨️ Quitar {{ periodoCalculoMeses }} Meses e Baixar Recibo (2 Vias)
       </button>
     </div>
@@ -1186,6 +1444,27 @@
     <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 24px;">
       <button class="btn btn-outline" (click)="fecharModalUploadReciboFisico()">Cancelar</button>
       <button class="btn btn-primary" (click)="enviarReciboFisico()">Salvar Recibo Físico</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: CADASTRAR NOVA META / OBRA -->
+<div class="modal-overlay" *ngIf="modalNovaMetaAberto()">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3 class="modal-title">➕ Cadastrar Nova Meta / Obra</h3>
+      <button class="close-btn" (click)="modalNovaMetaAberto.set(false)">✕</button>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Nome da Meta / Projeto:</label>
+      <input type="text" class="form-control" [ngModel]="novaMetaNome()" (ngModelChange)="novaMetaNome.set($event)" placeholder="Ex: Reforma do Portão / Pintura" data-cy="input-nova-meta-nome">
+      <small style="color: var(--text-muted);">Defina o nome da meta para planejamento financeiro</small>
+    </div>
+
+    <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px;">
+      <button class="btn btn-outline" (click)="modalNovaMetaAberto.set(false)" data-cy="btn-cancelar-nova-meta">Cancelar</button>
+      <button class="btn btn-primary" (click)="adicionarNovaMeta()" data-cy="btn-confirmar-nova-meta">Salvar Meta</button>
     </div>
   </div>
 </div>

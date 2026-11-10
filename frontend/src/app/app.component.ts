@@ -39,13 +39,46 @@ export interface CenarioAdesao {
   arrecadacaoMensal: number;
   mesesNecessarios: number;
   custoTotalPorUnidade: number;
+  valorParcelaSugerida?: number;
 }
 
 export interface PlanoObraMuro {
+  tituloServico?: string;
+  valorMaoDeObra?: number;
+  valorMaterial?: number;
   custoTotalEstimado: number;
+  tempoExecucaoServico?: number;
+  prestadorNome?: string;
+  prestadorTelefone?: string;
+  saldoCaixaAtual?: number;
+  despesasPrevisiveis?: number;
+  despesasNaoPrevisiveis?: number;
+  totalContasMensais?: number;
+  creditoTotal?: number;
+  debitoTotal?: number;
+  saldoCaixaProjetado?: number;
+  caixinhaObraProjetada?: number;
+  tipoCalculoAdesao?: 'POR_VALOR_PARCELA' | 'POR_TEMPO_PRAZO';
   valorCotaSugerida: number;
+  mesesDesejados?: number;
   totalUnidades: number;
   cenarios: CenarioAdesao[];
+}
+
+export interface InfoBackup {
+  nomeArquivo: string;
+  tamanhoBytes: number;
+  dataCriacao: string;
+}
+
+export interface MetaObraItem {
+  id: string;
+  nome: string;
+  maoDeObra: number;
+  material: number;
+  tempoServico: number;
+  prestadorNome: string;
+  prestadorTelefone: string;
 }
 
 export interface DocumentoCondominio {
@@ -82,7 +115,7 @@ export class AppComponent implements OnInit {
   private apiUrl = '/api';
 
   // Navegação
-  tabAtiva = signal<'dashboard' | 'bloco-g' | 'bloco-h' | 'caixa' | 'muro' | 'dnd' | 'documentos' | 'balancete'>('dashboard');
+  tabAtiva = signal<'dashboard' | 'bloco-g' | 'bloco-h' | 'caixa' | 'muro' | 'dnd' | 'documentos' | 'balancete' | 'institucional'>('dashboard');
 
   // Filtros de Bloco
   filtroBlocoCaixa = signal<'TODOS' | 'BLOCO_G' | 'BLOCO_H'>('TODOS');
@@ -96,6 +129,43 @@ export class AppComponent implements OnInit {
   balancete = signal<BalanceteMensal | null>(null);
   carregando = signal<boolean>(false);
   anoMesSelecionado = signal<string>(new Date().toISOString().substring(0, 7));
+
+  // Metas & Obras Genéricas
+  metas = signal<MetaObraItem[]>([
+    {
+      id: 'meta-1',
+      nome: 'Obra do Muro dos Blocos G e H',
+      maoDeObra: 31000.00,
+      material: 30000.00,
+      tempoServico: 3,
+      prestadorNome: 'Empreiteira Silva & Filhos',
+      prestadorTelefone: '67999887766'
+    }
+  ]);
+  metaSelecionadaId = signal<string>('meta-1');
+  modalNovaMetaAberto = signal<boolean>(false);
+  novaMetaNome = signal<string>('');
+
+  // Formulário da Obra / Meta Atual
+  obraTitulo = signal<string>('Obra do Muro dos Blocos G e H');
+  obraMaoDeObra = signal<number>(31000.00);
+  obraMaterial = signal<number>(30000.00);
+  obraTempoServico = signal<number>(3);
+  obraPrestadorNome = signal<string>('Empreiteira Silva & Filhos');
+  obraPrestadorTelefone = signal<string>('67999887766');
+
+  // Gestão de Caixa & Contas Mensais
+  caixaSaldoAtual = signal<number>(5000.00);
+  caixaDespesasPrevisiveis = signal<number>(1200.00);
+  caixaDespesasNaoPrevisiveis = signal<number>(300.00);
+
+  // Modalidade de Cálculo da Adesão
+  tipoCalculoAdesao = signal<'POR_VALOR_PARCELA' | 'POR_TEMPO_PRAZO'>('POR_VALOR_PARCELA');
+  muroCotaSugerida = signal<number>(100.00);
+  obraMesesDesejados = signal<number>(12);
+
+  // Backups do Sistema
+  backups = signal<InfoBackup[]>([]);
 
   // Modais
   modalPagamentoAberto = signal<boolean>(false);
@@ -146,12 +216,12 @@ export class AppComponent implements OnInit {
   docLocalizacaoFisica: string = 'Pasta 01 / Gaveta do Síndico / Envelope Julho-2024';
   arquivoParaUpload: File | null = null;
 
-  // Formulário Simulador Muro
-  muroCustoTotal: number = 30000.00;
-  muroCotaSugerida: number = 100.00;
-
   // Formulário Balancete
   balanceteDespesas: number = 1200.00;
+
+  get obraCustoTotalComposto(): number {
+    return (Number(this.obraMaoDeObra()) || 0) + (Number(this.obraMaterial()) || 0);
+  }
 
   ngOnInit() {
     this.carregarDados();
@@ -164,6 +234,7 @@ export class AppComponent implements OnInit {
     this.carregarSimulacaoMuro();
     this.carregarDocumentos();
     this.carregarBalancete();
+    this.carregarBackups();
   }
 
   carregarApartamentos() {
@@ -187,11 +258,92 @@ export class AppComponent implements OnInit {
   }
 
   carregarSimulacaoMuro() {
-    this.http.get<PlanoObraMuro>(`${this.apiUrl}/obra-muro/simular?custoTotal=${this.muroCustoTotal}&cotaSugerida=${this.muroCotaSugerida}`)
+    const params = new URLSearchParams({
+      titulo: this.obraTitulo(),
+      maoDeObra: (this.obraMaoDeObra() || 0).toString(),
+      material: (this.obraMaterial() || 0).toString(),
+      tempoServico: (this.obraTempoServico() || 3).toString(),
+      prestadorNome: this.obraPrestadorNome() || '',
+      prestadorTelefone: this.obraPrestadorTelefone() || '',
+      saldoCaixa: (this.caixaSaldoAtual() || 0).toString(),
+      previsiveis: (this.caixaDespesasPrevisiveis() || 0).toString(),
+      naoPrevisiveis: (this.caixaDespesasNaoPrevisiveis() || 0).toString(),
+      tipoCalculo: this.tipoCalculoAdesao(),
+      cotaSugerida: (this.muroCotaSugerida() || 100).toString(),
+      mesesDesejados: (this.obraMesesDesejados() || 12).toString()
+    });
+
+    this.http.get<PlanoObraMuro>(`${this.apiUrl}/obra-muro/simular?${params.toString()}`)
       .subscribe({
         next: (dados) => this.planoMuro.set(dados),
-        error: (err) => console.error('Erro ao simular muro', err)
+        error: (err) => console.error('Erro ao simular obra/meta', err)
       });
+  }
+
+  adicionarNovaMeta() {
+    const nome = this.novaMetaNome().trim();
+    if (!nome) {
+      alert('Por favor, informe o nome da nova meta/obra.');
+      return;
+    }
+    const novaId = 'meta-' + (this.metas().length + 1);
+    const nova: MetaObraItem = {
+      id: novaId,
+      nome: nome,
+      maoDeObra: 15000.00,
+      material: 15000.00,
+      tempoServico: 2,
+      prestadorNome: 'A Definir',
+      prestadorTelefone: ''
+    };
+    this.metas.update(m => [...m, nova]);
+    this.selecionarMeta(novaId);
+    this.modalNovaMetaAberto.set(false);
+    this.novaMetaNome.set('');
+  }
+
+  selecionarMeta(metaId: string) {
+    this.metaSelecionadaId.set(metaId);
+    const m = this.metas().find(item => item.id === metaId);
+    if (m) {
+      this.obraTitulo.set(m.nome);
+      this.obraMaoDeObra.set(m.maoDeObra);
+      this.obraMaterial.set(m.material);
+      this.obraTempoServico.set(m.tempoServico);
+      this.obraPrestadorNome.set(m.prestadorNome);
+      this.obraPrestadorTelefone.set(m.prestadorTelefone);
+      this.carregarSimulacaoMuro();
+    }
+  }
+
+  carregarBackups() {
+    this.http.get<InfoBackup[]>(`${this.apiUrl}/sistema/backups`).subscribe({
+      next: (dados) => this.backups.set(dados),
+      error: (err) => console.error('Erro ao buscar backups', err)
+    });
+  }
+
+  dispararBackupManual() {
+    this.http.post(`${this.apiUrl}/sistema/backups/executar`, {}).subscribe({
+      next: () => {
+        this.carregarBackups();
+        alert('Backup manual salvo com sucesso na pasta data/backups/!');
+      },
+      error: (err) => alert('Erro ao criar backup: ' + err.message)
+    });
+  }
+
+  restaurarBackup(nomeArquivo: string) {
+    if (!confirm(`Deseja realmente restaurar o backup ${nomeArquivo}? As alterações posteriores serão revertidas.`)) {
+      return;
+    }
+    this.http.post(`${this.apiUrl}/sistema/backups/restaurar?nomeArquivo=${nomeArquivo}`, {}).subscribe({
+      next: () => {
+        alert('Rollback realizado com sucesso! Os dados foram restaurados para o snapshot selecionado.');
+        this.carregarDados();
+      },
+      error: (err) => alert('Erro ao restaurar backup: ' + err.message)
+    });
   }
 
   carregarDocumentos() {
