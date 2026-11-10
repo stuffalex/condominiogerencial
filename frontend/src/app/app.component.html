@@ -324,35 +324,41 @@
           <div class="apartamentos-grid">
             <div *ngFor="let apto of obterAptosPorBlocoEAndar('BLOCO_G', 1)" class="apto-card"
                  [class.status-paga]="obterCotaApartamento(apto.id)?.status === 'PAGA'"
-                 [class.status-pendente]="obterCotaApartamento(apto.id)?.status !== 'PAGA'">
+                 [class.status-pendente]="obterCotaApartamento(apto.id)?.status !== 'PAGA'"
+                 [attr.data-cy]="'apto-card-' + apto.numero">
               <div class="apto-top">
                 <span class="apto-numero">Apto {{ apto.numero }}</span>
                 <span class="badge" [class.badge-success]="obterCotaApartamento(apto.id)?.status === 'PAGA'"
-                                   [class.badge-danger]="obterCotaApartamento(apto.id)?.status !== 'PAGA'">
+                                   [class.badge-danger]="obterCotaApartamento(apto.id)?.status !== 'PAGA'"
+                                   [attr.data-cy]="'badge-status-' + apto.numero">
                   {{ obterCotaApartamento(apto.id)?.status === 'PAGA' ? 'PAGO' : 'EM ABERTO' }}
                 </span>
               </div>
               <div class="apto-info">
                 <div>🚗 Vaga Garagem: <strong>{{ apto.vagaGaragem }}</strong></div>
-                <div>🔑 Proprietário: <strong>{{ apto.proprietario.nome }}</strong></div>
-                <div>👤 Morador: <strong>{{ apto.morador.nome }}</strong></div>
-                <div *ngIf="apto.morador.telefone && apto.morador.telefone !== 'Não informado'">
+                <div>🔑 Proprietário: <strong [attr.data-cy]="'proprietario-nome-' + apto.numero">{{ apto.proprietario.nome }}</strong></div>
+                <div>👤 Morador: <strong [attr.data-cy]="'morador-nome-' + apto.numero">{{ apto.morador.nome }}</strong></div>
+                <div *ngIf="apto.morador.telefone && apto.morador.telefone !== 'Não informado'" [attr.data-cy]="'morador-telefone-' + apto.numero">
                   📞 Tel: {{ apto.morador.telefone }}
                 </div>
               </div>
               <div style="margin-top: 10px; display: flex; flex-wrap: wrap; gap: 6px;">
                 <button *ngIf="obterCotaApartamento(apto.id)?.status !== 'PAGA'"
                         class="btn btn-success btn-sm" style="flex: 1;"
-                        (click)="abrirModalPagamento(apto)">
+                        (click)="abrirModalPagamento(apto)"
+                        [attr.data-cy]="'btn-receber-' + apto.numero">
                   💵 Receber R$ 180
                 </button>
-                <button class="btn btn-outline btn-sm" (click)="abrirModalPeriodo(apto)" title="Quitar múltiplos meses">
+                <button class="btn btn-outline btn-sm" (click)="abrirModalPeriodo(apto)" title="Quitar múltiplos meses"
+                        [attr.data-cy]="'btn-periodo-' + apto.numero">
                   🗓️ Período
                 </button>
-                <button class="btn btn-outline btn-sm" (click)="abrirModalMorador(apto)">
+                <button class="btn btn-outline btn-sm" (click)="abrirModalMorador(apto)"
+                        [attr.data-cy]="'btn-editar-' + apto.numero">
                   ✏️ Editar
                 </button>
-                <button class="btn btn-outline btn-sm" (click)="abrirModalDnd(apto)" title="Emitir DND">
+                <button class="btn btn-outline btn-sm" (click)="abrirModalDnd(apto)" title="Emitir DND"
+                        [attr.data-cy]="'btn-dnd-' + apto.numero">
                   📄 DND
                 </button>
               </div>
@@ -369,35 +375,41 @@
           <div class="apartamentos-grid">
             <div *ngFor="let apto of obterAptosPorBlocoEAndar('BLOCO_G', 2)" class="apto-card"
                  [class.status-paga]="obterCotaApartamento(apto.id)?.status === 'PAGA'"
-                 [class.status-pendente]="obterCotaApartamento(apto.id)?.status !== 'PAGA'">
+                 [class.status-pendente]="obterCotaApartamento(apto.id)?.status !== 'PAGA'"
+                 [attr.data-cy]="'apto-card-' + apto.numero">
               <div class="apto-top">
                 <span class="apto-numero">Apto {{ apto.numero }}</span>
                 <span class="badge" [class.badge-success]="obterCotaApartamento(apto.id)?.status === 'PAGA'"
-                                   [class.badge-danger]="obterCotaApartamento(apto.id)?.status !== 'PAGA'">
+                                   [class.badge-danger]="obterCotaApartamento(apto.id)?.status !== 'PAGA'"
+                                   [attr.data-cy]="'badge-status-' + apto.numero">
                   {{ obterCotaApartamento(apto.id)?.status === 'PAGA' ? 'PAGO' : 'EM ABERTO' }}
                 </span>
               </div>
               <div class="apto-info">
                 <div>🚗 Vaga Garagem: <strong>{{ apto.vagaGaragem }}</strong></div>
-                <div>🔑 Proprietário: <strong>{{ apto.proprietario.nome }}</strong></div>
-                <div>👤 Morador: <strong>{{ apto.morador.nome }}</strong></div>
-                <div *ngIf="apto.morador.telefone && apto.morador.telefone !== 'Não informado'">
+                <div>🔑 Proprietário: <strong [attr.data-cy]="'proprietario-nome-' + apto.numero">{{ apto.proprietario.nome }}</strong></div>
+                <div>👤 Morador: <strong [attr.data-cy]="'morador-nome-' + apto.numero">{{ apto.morador.nome }}</strong></div>
+                <div *ngIf="apto.morador.telefone && apto.morador.telefone !== 'Não informado'" [attr.data-cy]="'morador-telefone-' + apto.numero">
                   📞 Tel: {{ apto.morador.telefone }}
                 </div>
               </div>
               <div style="margin-top: 10px; display: flex; flex-wrap: wrap; gap: 6px;">
                 <button *ngIf="obterCotaApartamento(apto.id)?.status !== 'PAGA'"
                         class="btn btn-success btn-sm" style="flex: 1;"
-                        (click)="abrirModalPagamento(apto)">
+                        (click)="abrirModalPagamento(apto)"
+                        [attr.data-cy]="'btn-receber-' + apto.numero">
                   💵 Receber R$ 180
                 </button>
-                <button class="btn btn-outline btn-sm" (click)="abrirModalPeriodo(apto)" title="Quitar múltiplos meses">
+                <button class="btn btn-outline btn-sm" (click)="abrirModalPeriodo(apto)" title="Quitar múltiplos meses"
+                        [attr.data-cy]="'btn-periodo-' + apto.numero">
                   🗓️ Período
                 </button>
-                <button class="btn btn-outline btn-sm" (click)="abrirModalMorador(apto)">
+                <button class="btn btn-outline btn-sm" (click)="abrirModalMorador(apto)"
+                        [attr.data-cy]="'btn-editar-' + apto.numero">
                   ✏️ Editar
                 </button>
-                <button class="btn btn-outline btn-sm" (click)="abrirModalDnd(apto)" title="Emitir DND">
+                <button class="btn btn-outline btn-sm" (click)="abrirModalDnd(apto)" title="Emitir DND"
+                        [attr.data-cy]="'btn-dnd-' + apto.numero">
                   📄 DND
                 </button>
               </div>
@@ -461,35 +473,41 @@
           <div class="apartamentos-grid">
             <div *ngFor="let apto of obterAptosPorBlocoEAndar('BLOCO_H', 0)" class="apto-card"
                  [class.status-paga]="obterCotaApartamento(apto.id)?.status === 'PAGA'"
-                 [class.status-pendente]="obterCotaApartamento(apto.id)?.status !== 'PAGA'">
+                 [class.status-pendente]="obterCotaApartamento(apto.id)?.status !== 'PAGA'"
+                 [attr.data-cy]="'apto-card-' + apto.numero">
               <div class="apto-top">
                 <span class="apto-numero">Apto {{ apto.numero }}</span>
                 <span class="badge" [class.badge-success]="obterCotaApartamento(apto.id)?.status === 'PAGA'"
-                                   [class.badge-danger]="obterCotaApartamento(apto.id)?.status !== 'PAGA'">
+                                   [class.badge-danger]="obterCotaApartamento(apto.id)?.status !== 'PAGA'"
+                                   [attr.data-cy]="'badge-status-' + apto.numero">
                   {{ obterCotaApartamento(apto.id)?.status === 'PAGA' ? 'PAGO' : 'EM ABERTO' }}
                 </span>
               </div>
               <div class="apto-info">
                 <div>🚗 Vaga Garagem: <strong>{{ apto.vagaGaragem }}</strong></div>
-                <div>🔑 Proprietário: <strong>{{ apto.proprietario.nome }}</strong></div>
-                <div>👤 Morador: <strong>{{ apto.morador.nome }}</strong></div>
-                <div *ngIf="apto.morador.telefone && apto.morador.telefone !== 'Não informado'">
+                <div>🔑 Proprietário: <strong [attr.data-cy]="'proprietario-nome-' + apto.numero">{{ apto.proprietario.nome }}</strong></div>
+                <div>👤 Morador: <strong [attr.data-cy]="'morador-nome-' + apto.numero">{{ apto.morador.nome }}</strong></div>
+                <div *ngIf="apto.morador.telefone && apto.morador.telefone !== 'Não informado'" [attr.data-cy]="'morador-telefone-' + apto.numero">
                   📞 Tel: {{ apto.morador.telefone }}
                 </div>
               </div>
               <div style="margin-top: 10px; display: flex; flex-wrap: wrap; gap: 6px;">
                 <button *ngIf="obterCotaApartamento(apto.id)?.status !== 'PAGA'"
                         class="btn btn-success btn-sm" style="flex: 1;"
-                        (click)="abrirModalPagamento(apto)">
+                        (click)="abrirModalPagamento(apto)"
+                        [attr.data-cy]="'btn-receber-' + apto.numero">
                   💵 Receber R$ 180
                 </button>
-                <button class="btn btn-outline btn-sm" (click)="abrirModalPeriodo(apto)" title="Quitar múltiplos meses">
+                <button class="btn btn-outline btn-sm" (click)="abrirModalPeriodo(apto)" title="Quitar múltiplos meses"
+                        [attr.data-cy]="'btn-periodo-' + apto.numero">
                   🗓️ Período
                 </button>
-                <button class="btn btn-outline btn-sm" (click)="abrirModalMorador(apto)">
+                <button class="btn btn-outline btn-sm" (click)="abrirModalMorador(apto)"
+                        [attr.data-cy]="'btn-editar-' + apto.numero">
                   ✏️ Editar
                 </button>
-                <button class="btn btn-outline btn-sm" (click)="abrirModalDnd(apto)" title="Emitir DND">
+                <button class="btn btn-outline btn-sm" (click)="abrirModalDnd(apto)" title="Emitir DND"
+                        [attr.data-cy]="'btn-dnd-' + apto.numero">
                   📄 DND
                 </button>
               </div>
@@ -506,35 +524,41 @@
           <div class="apartamentos-grid">
             <div *ngFor="let apto of obterAptosPorBlocoEAndar('BLOCO_H', 1)" class="apto-card"
                  [class.status-paga]="obterCotaApartamento(apto.id)?.status === 'PAGA'"
-                 [class.status-pendente]="obterCotaApartamento(apto.id)?.status !== 'PAGA'">
+                 [class.status-pendente]="obterCotaApartamento(apto.id)?.status !== 'PAGA'"
+                 [attr.data-cy]="'apto-card-' + apto.numero">
               <div class="apto-top">
                 <span class="apto-numero">Apto {{ apto.numero }}</span>
                 <span class="badge" [class.badge-success]="obterCotaApartamento(apto.id)?.status === 'PAGA'"
-                                   [class.badge-danger]="obterCotaApartamento(apto.id)?.status !== 'PAGA'">
+                                   [class.badge-danger]="obterCotaApartamento(apto.id)?.status !== 'PAGA'"
+                                   [attr.data-cy]="'badge-status-' + apto.numero">
                   {{ obterCotaApartamento(apto.id)?.status === 'PAGA' ? 'PAGO' : 'EM ABERTO' }}
                 </span>
               </div>
               <div class="apto-info">
                 <div>🚗 Vaga Garagem: <strong>{{ apto.vagaGaragem }}</strong></div>
-                <div>🔑 Proprietário: <strong>{{ apto.proprietario.nome }}</strong></div>
-                <div>👤 Morador: <strong>{{ apto.morador.nome }}</strong></div>
-                <div *ngIf="apto.morador.telefone && apto.morador.telefone !== 'Não informado'">
+                <div>🔑 Proprietário: <strong [attr.data-cy]="'proprietario-nome-' + apto.numero">{{ apto.proprietario.nome }}</strong></div>
+                <div>👤 Morador: <strong [attr.data-cy]="'morador-nome-' + apto.numero">{{ apto.morador.nome }}</strong></div>
+                <div *ngIf="apto.morador.telefone && apto.morador.telefone !== 'Não informado'" [attr.data-cy]="'morador-telefone-' + apto.numero">
                   📞 Tel: {{ apto.morador.telefone }}
                 </div>
               </div>
               <div style="margin-top: 10px; display: flex; flex-wrap: wrap; gap: 6px;">
                 <button *ngIf="obterCotaApartamento(apto.id)?.status !== 'PAGA'"
                         class="btn btn-success btn-sm" style="flex: 1;"
-                        (click)="abrirModalPagamento(apto)">
+                        (click)="abrirModalPagamento(apto)"
+                        [attr.data-cy]="'btn-receber-' + apto.numero">
                   💵 Receber R$ 180
                 </button>
-                <button class="btn btn-outline btn-sm" (click)="abrirModalPeriodo(apto)" title="Quitar múltiplos meses">
+                <button class="btn btn-outline btn-sm" (click)="abrirModalPeriodo(apto)" title="Quitar múltiplos meses"
+                        [attr.data-cy]="'btn-periodo-' + apto.numero">
                   🗓️ Período
                 </button>
-                <button class="btn btn-outline btn-sm" (click)="abrirModalMorador(apto)">
+                <button class="btn btn-outline btn-sm" (click)="abrirModalMorador(apto)"
+                        [attr.data-cy]="'btn-editar-' + apto.numero">
                   ✏️ Editar
                 </button>
-                <button class="btn btn-outline btn-sm" (click)="abrirModalDnd(apto)" title="Emitir DND">
+                <button class="btn btn-outline btn-sm" (click)="abrirModalDnd(apto)" title="Emitir DND"
+                        [attr.data-cy]="'btn-dnd-' + apto.numero">
                   📄 DND
                 </button>
               </div>
@@ -551,35 +575,41 @@
           <div class="apartamentos-grid">
             <div *ngFor="let apto of obterAptosPorBlocoEAndar('BLOCO_H', 2)" class="apto-card"
                  [class.status-paga]="obterCotaApartamento(apto.id)?.status === 'PAGA'"
-                 [class.status-pendente]="obterCotaApartamento(apto.id)?.status !== 'PAGA'">
+                 [class.status-pendente]="obterCotaApartamento(apto.id)?.status !== 'PAGA'"
+                 [attr.data-cy]="'apto-card-' + apto.numero">
               <div class="apto-top">
                 <span class="apto-numero">Apto {{ apto.numero }}</span>
                 <span class="badge" [class.badge-success]="obterCotaApartamento(apto.id)?.status === 'PAGA'"
-                                   [class.badge-danger]="obterCotaApartamento(apto.id)?.status !== 'PAGA'">
+                                   [class.badge-danger]="obterCotaApartamento(apto.id)?.status !== 'PAGA'"
+                                   [attr.data-cy]="'badge-status-' + apto.numero">
                   {{ obterCotaApartamento(apto.id)?.status === 'PAGA' ? 'PAGO' : 'EM ABERTO' }}
                 </span>
               </div>
               <div class="apto-info">
                 <div>🚗 Vaga Garagem: <strong>{{ apto.vagaGaragem }}</strong></div>
-                <div>🔑 Proprietário: <strong>{{ apto.proprietario.nome }}</strong></div>
-                <div>👤 Morador: <strong>{{ apto.morador.nome }}</strong></div>
-                <div *ngIf="apto.morador.telefone && apto.morador.telefone !== 'Não informado'">
+                <div>🔑 Proprietário: <strong [attr.data-cy]="'proprietario-nome-' + apto.numero">{{ apto.proprietario.nome }}</strong></div>
+                <div>👤 Morador: <strong [attr.data-cy]="'morador-nome-' + apto.numero">{{ apto.morador.nome }}</strong></div>
+                <div *ngIf="apto.morador.telefone && apto.morador.telefone !== 'Não informado'" [attr.data-cy]="'morador-telefone-' + apto.numero">
                   📞 Tel: {{ apto.morador.telefone }}
                 </div>
               </div>
               <div style="margin-top: 10px; display: flex; flex-wrap: wrap; gap: 6px;">
                 <button *ngIf="obterCotaApartamento(apto.id)?.status !== 'PAGA'"
                         class="btn btn-success btn-sm" style="flex: 1;"
-                        (click)="abrirModalPagamento(apto)">
+                        (click)="abrirModalPagamento(apto)"
+                        [attr.data-cy]="'btn-receber-' + apto.numero">
                   💵 Receber R$ 180
                 </button>
-                <button class="btn btn-outline btn-sm" (click)="abrirModalPeriodo(apto)" title="Quitar múltiplos meses">
+                <button class="btn btn-outline btn-sm" (click)="abrirModalPeriodo(apto)" title="Quitar múltiplos meses"
+                        [attr.data-cy]="'btn-periodo-' + apto.numero">
                   🗓️ Período
                 </button>
-                <button class="btn btn-outline btn-sm" (click)="abrirModalMorador(apto)">
+                <button class="btn btn-outline btn-sm" (click)="abrirModalMorador(apto)"
+                        [attr.data-cy]="'btn-editar-' + apto.numero">
                   ✏️ Editar
                 </button>
-                <button class="btn btn-outline btn-sm" (click)="abrirModalDnd(apto)" title="Emitir DND">
+                <button class="btn btn-outline btn-sm" (click)="abrirModalDnd(apto)" title="Emitir DND"
+                        [attr.data-cy]="'btn-dnd-' + apto.numero">
                   📄 DND
                 </button>
               </div>
@@ -638,7 +668,7 @@
                 </tr>
               </thead>
               <tbody>
-                <tr *ngFor="let apto of apartamentosCaixaFiltrados">
+                <tr *ngFor="let apto of apartamentosCaixaFiltrados" [attr.data-cy]="'row-caixa-' + apto.numero">
                   <td><strong>{{ apto.bloco === 'BLOCO_G' ? 'Bloco G' : 'Bloco H' }} - Apto {{ apto.numero }}</strong></td>
                   <td>{{ apto.vagaGaragem }}</td>
                   <td>{{ apto.morador.nome }}</td>
@@ -934,18 +964,19 @@
                 </tr>
               </thead>
               <tbody>
-                <tr *ngFor="let apto of apartamentosDndFiltrados">
+                <tr *ngFor="let apto of apartamentosDndFiltrados" [attr.data-cy]="'row-dnd-' + apto.numero">
                   <td><strong>{{ apto.bloco === 'BLOCO_G' ? 'Bloco G' : 'Bloco H' }} - Apto {{ apto.numero }}</strong></td>
                   <td>{{ apto.vagaGaragem }}</td>
                   <td>{{ apto.proprietario.nome }}</td>
                   <td>
                     <span class="badge" [class.badge-success]="obterCotaApartamento(apto.id)?.status === 'PAGA'"
-                                       [class.badge-danger]="obterCotaApartamento(apto.id)?.status !== 'PAGA'">
+                                       [class.badge-danger]="obterCotaApartamento(apto.id)?.status !== 'PAGA'"
+                                       [attr.data-cy]="'badge-dnd-status-' + apto.numero">
                       {{ obterCotaApartamento(apto.id)?.status === 'PAGA' ? 'ADIMPLENTE' : 'PENDÊNCIA EM ABERTO' }}
                     </span>
                   </td>
                   <td>
-                    <button class="btn btn-primary btn-sm" (click)="abrirModalDnd(apto)">
+                    <button class="btn btn-primary btn-sm" (click)="abrirModalDnd(apto)" [attr.data-cy]="'btn-dnd-emitir-' + apto.numero">
                       📄 Emitir Certidão DND
                     </button>
                   </td>
@@ -1068,122 +1099,290 @@
         </div>
       </section>
 
-      <!-- TAB 8: PAINEL INSTITUCIONAL, SEGURANÇA E PROPOSTA DE VALOR -->
+      <!-- TAB 8: PAINEL INSTITUCIONAL, SEGURANÇA E PROPOSTA DE VALOR (MODERNIZADO) -->
       <section *ngIf="tabAtiva() === 'institucional'" data-cy="secao-institucional">
-        <div class="card" style="border-left: 4px solid #1e3a8a; margin-bottom: 24px;">
-          <div class="card-header">
-            <div>
-              <h2 class="card-title">🏛️ Painel Institucional, Segurança & Proposta Comunitária</h2>
-              <p style="color: var(--text-muted); font-size: 0.9rem;">
-                Residencial Anhanduí • Blocos G e H (24 Apartamentos) • Projeto de Gestão Autônoma e Transparente
-              </p>
-            </div>
-            <span class="badge badge-success" style="font-size: 0.9rem;">Sistema 100% Doado & Open-Source</span>
-          </div>
 
-          <!-- Cards de Proposta de Valor -->
-          <div class="stats-grid" style="margin-bottom: 24px;">
-            <div class="stat-card" style="border-left: 4px solid #059669;" data-cy="card-seguranca-offline">
-              <span class="stat-label">🔒 Segurança 100% Offline</span>
-              <span class="stat-value" style="color: #059669; font-size: 1.35rem;">Roda em Pendrive</span>
-              <span class="stat-meta">Zero internet. Sem risco de vazamento de dados ou sequestro digital de arquivos.</span>
+        <!-- 1. HERO HEADER BANNER COM GRADIENTE ELEGANTE -->
+        <div class="institucional-hero">
+          <div class="institucional-hero-content">
+            <div class="institucional-badge-row">
+              <span class="institucional-tag">🏛️ PROPOSTA COMUNITÁRIA EXCLUSIVA • BLOCOS G E H</span>
+              <span class="institucional-tag-pill">✨ Software 100% Doado & Open-Source</span>
             </div>
+            <h2 class="institucional-title">
+              Gestão Inteligente, Redução Drástica de Custos & Segurança Máxima
+            </h2>
+            <p class="institucional-subtitle">
+              Desenvolvido sob medida para a realidade dos <strong>24 apartamentos dos Blocos G e H</strong> do Residencial Anhanduí.
+              Substitui softwares de mercado caros e planilhas confusas por uma tecnologia 100% autônoma, segura e sem mensalidades abusivas.
+            </p>
 
-            <div class="stat-card" style="border-left: 4px solid #1e3a8a;" data-cy="card-economia-condominial">
-              <span class="stat-label">💰 Economia Condominial</span>
-              <span class="stat-value" style="color: #1e3a8a; font-size: 1.35rem;">R$ 5.000 a 7.000</span>
-              <span class="stat-meta">Valor de mercado economizado pelo condomínio. Software entregue gratuitamente.</span>
-            </div>
-
-            <div class="stat-card" style="border-left: 4px solid #7c3aed;" data-cy="card-ganho-tempo">
-              <span class="stat-label">⏱️ Ganho de Tempo & Organização</span>
-              <span class="stat-value" style="color: #7c3aed; font-size: 1.35rem;">Busca Instantânea</span>
-              <span class="stat-meta">Fim dos recibos perdidos em gavetas. Emissão em 2 vias e balancete pronto em 1 clique.</span>
-            </div>
-
-            <div class="stat-card" style="border-left: 4px solid #d97706;" data-cy="card-suporte-diretoria">
-              <span class="stat-label">👵 Acolhimento da Diretoria</span>
-              <span class="stat-value" style="color: #d97706; font-size: 1.35rem;">6 Meses de Suporte</span>
-              <span class="stat-meta">Apoio voluntário presencial para treinar e capacitar a diretoria idosa.</span>
-            </div>
-          </div>
-
-          <!-- Detalhamento Institucional -->
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 24px;">
-            <div style="background: #f8fafc; padding: 20px; border-radius: 8px; border: 1px solid var(--border);">
-              <h3 style="color: #1e3a8a; font-size: 1.05rem; font-weight: 700; margin-bottom: 10px;">
-                🤝 Projeto Aberto & Melhorias via GitHub
-              </h3>
-              <p style="color: #334155; font-size: 0.9rem; line-height: 1.6;">
-                Este sistema foi desenvolvido como uma iniciativa <strong>open-source</strong> e transparente.
-                Qualquer melhoria, ajuste de regra ou evolução futura deve ser solicitado de forma transparente no GitHub.
-                Caso o condomínio necessite de manutenção técnica contínua após a fase de implantação, será cobrada uma taxa puramente simbólica de <strong>R$ 200,00 mensais</strong>, permitindo sustentabilidade com custo 10 vezes menor que qualquer solução de mercado.
-              </p>
-            </div>
-
-            <div style="background: #f8fafc; padding: 20px; border-radius: 8px; border: 1px solid var(--border);">
-              <h3 style="color: #1e3a8a; font-size: 1.05rem; font-weight: 700; margin-bottom: 10px;">
-                🛡️ Salvaguarda com Backups Automáticos & Rollback
-              </h3>
-              <p style="color: #334155; font-size: 0.9rem; line-height: 1.6;">
-                Para que a diretoria idosa tenha total tranquilidade ao cadastrar ou alterar informações, o sistema gera automaticamente uma <strong>cópia de segurança (backup)</strong> a cada inicialização na pasta <code>data/backups/</code>.
-                O sistema mantém os últimos 3 backups rotativos, garantindo que qualquer erro possa ser revertido imediatamente com um clique.
-              </p>
-            </div>
-          </div>
-
-          <!-- Painel dos 3 Backups Rotativos -->
-          <div style="background: #ffffff; border: 1px solid var(--border); padding: 20px; border-radius: 8px;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 10px;">
-              <div>
-                <h4 style="font-size: 1rem; color: #1e3a8a; font-weight: 700; margin-bottom: 4px;">
-                  💾 Backups Recentes do Sistema (Últimos 3 Mantidos)
-                </h4>
-                <small style="color: var(--text-muted);">Cópias físicas salvas na pasta data/backups/ do pendrive</small>
+            <div class="institucional-pills-row">
+              <div class="hero-chip">
+                <span class="hero-chip-icon">🔒</span>
+                <span>100% Offline em Pendrive</span>
               </div>
-              <div style="display: flex; gap: 8px;">
-                <button class="btn btn-outline btn-sm" (click)="carregarBackups()" data-cy="btn-atualizar-backups">
-                  🔄 Atualizar Lista
-                </button>
-                <button class="btn btn-primary btn-sm" (click)="dispararBackupManual()" data-cy="btn-backup-manual">
-                  💾 Criar Backup Imediato
-                </button>
+              <div class="hero-chip">
+                <span class="hero-chip-icon">💰</span>
+                <span>Economia de R$ 5.000 a 7.000/ano</span>
               </div>
-            </div>
-
-            <div class="table-responsive">
-              <table class="table">
-                <thead>
-                  <tr>
-                    <th>Arquivo de Backup</th>
-                    <th>Tamanho</th>
-                    <th>Data / Hora do Snapshot</th>
-                    <th>Ações de Salvaguarda</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr *ngFor="let b of backups()" [attr.data-cy]="'item-backup-' + b.nomeArquivo">
-                    <td><strong>📁 {{ b.nomeArquivo }}</strong></td>
-                    <td>{{ (b.tamanhoBytes / 1024) | number:'1.0-1' }} KB</td>
-                    <td>{{ b.dataCriacao }}</td>
-                    <td>
-                      <button class="btn btn-outline btn-sm" style="color: #dc2626; border-color: #f87171;"
-                              (click)="restaurarBackup(b.nomeArquivo)"
-                              [attr.data-cy]="'btn-restaurar-' + b.nomeArquivo">
-                        ⏪ Restaurar (Rollback)
-                      </button>
-                    </td>
-                  </tr>
-                  <tr *ngIf="backups().length === 0">
-                    <td colspan="4" style="text-align: center; color: var(--text-muted); padding: 20px;">
-                      Nenhum backup arquivado ainda. O sistema cria automaticamente ao ligar.
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
+              <div class="hero-chip">
+                <span class="hero-chip-icon">👵</span>
+                <span>Acolhimento da Diretoria Idosa</span>
+              </div>
+              <div class="hero-chip">
+                <span class="hero-chip-icon">⚡</span>
+                <span>SQLite em Arquivo Único</span>
+              </div>
             </div>
           </div>
         </div>
+
+        <!-- 2. GRID DE CARDS DE PROPOSTA DE VALOR (CARDS MODERNOS COM ELEVAÇÃO) -->
+        <div class="institucional-stats-grid">
+
+          <!-- Card 1: Segurança Offline -->
+          <div class="institucional-stat-card card-hover-emerald" data-cy="card-seguranca-offline">
+            <div class="stat-card-header">
+              <div class="stat-icon-bubble bubble-emerald">🔒</div>
+              <span class="stat-chip chip-emerald">Zero Invasão</span>
+            </div>
+            <div class="stat-content">
+              <span class="stat-card-label">Segurança 100% Offline</span>
+              <span class="stat-card-value text-emerald">Roda em Pendrive</span>
+              <p class="stat-card-desc">
+                Zero internet. Sem risco de vazamento de dados, sequestro digital de arquivos ou dependência de servidores na nuvem.
+              </p>
+            </div>
+            <div class="stat-card-footer">
+              <span class="stat-footer-tag">🛡️ Dados Físicos em Casa</span>
+            </div>
+          </div>
+
+          <!-- Card 2: Economia Condominial -->
+          <div class="institucional-stat-card card-hover-blue" data-cy="card-economia-condominial">
+            <div class="stat-card-header">
+              <div class="stat-icon-bubble bubble-blue">💰</div>
+              <span class="stat-chip chip-blue">Economia Real</span>
+            </div>
+            <div class="stat-content">
+              <span class="stat-card-label">Economia Condominial</span>
+              <span class="stat-card-value text-blue">R$ 5.000 a 7.000</span>
+              <p class="stat-card-desc">
+                Valor de mercado economizado pelo condomínio anualmente. Software concebido e entregue gratuitamente aos moradores.
+              </p>
+            </div>
+            <div class="stat-card-footer">
+              <span class="stat-footer-tag">💎 R$ 0,00 de Licença</span>
+            </div>
+          </div>
+
+          <!-- Card 3: Ganho de Tempo & Organização -->
+          <div class="institucional-stat-card card-hover-purple" data-cy="card-ganho-tempo">
+            <div class="stat-card-header">
+              <div class="stat-icon-bubble bubble-purple">⏱️</div>
+              <span class="stat-chip chip-purple">10x Mais Rápido</span>
+            </div>
+            <div class="stat-content">
+              <span class="stat-card-label">Ganho de Tempo & Organização</span>
+              <span class="stat-card-value text-purple">Busca Instantânea</span>
+              <p class="stat-card-desc">
+                Fim dos recibos perdidos em gavetas. Emissão em 2 vias, quitação consolidada por período e balancete pronto em 1 clique.
+              </p>
+            </div>
+            <div class="stat-card-footer">
+              <span class="stat-footer-tag">⚡ Agilidade Imediata</span>
+            </div>
+          </div>
+
+          <!-- Card 4: Acolhimento da Diretoria -->
+          <div class="institucional-stat-card card-hover-amber" data-cy="card-suporte-diretoria">
+            <div class="stat-card-header">
+              <div class="stat-icon-bubble bubble-amber">👵</div>
+              <span class="stat-chip chip-amber">Apoio Humano</span>
+            </div>
+            <div class="stat-content">
+              <span class="stat-card-label">Acolhimento da Diretoria</span>
+              <span class="stat-card-value text-amber">6 Meses de Suporte</span>
+              <p class="stat-card-desc">
+                Apoio voluntário presencial para treinar, tirar dúvidas e capacitar com calma e carinho a diretoria e conselho idoso.
+              </p>
+            </div>
+            <div class="stat-card-footer">
+              <span class="stat-footer-tag">🤝 Transparência & Respeito</span>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- 3. MATRIZ COMPARATIVA: ANTES (MERCADO / PAPEL) vs. AGORA (RESIDENCIAL ANHANDUÍ) -->
+        <div class="comparison-card-wrapper">
+          <div class="comparison-card-header">
+            <div>
+              <h3 class="comparison-title">📊 Matriz Comparativa: Por Que Esta Solução Transforma Nossos Blocos?</h3>
+              <p class="comparison-subtitle">
+                Veja a diferença concreta entre o modelo tradicional de mercado e a solução comunitária autônoma desenvolvida para os Blocos G e H.
+              </p>
+            </div>
+            <span class="badge badge-success" style="font-size: 0.85rem; padding: 6px 12px;">Transparência Auditável</span>
+          </div>
+
+          <div class="comparison-grid">
+            <!-- Lado Negativo: Mercado Tradicional -->
+            <div class="comparison-column comparison-negative">
+              <div class="column-badge badge-neg">❌ Modelo Antigo / Mercado Tradicional</div>
+              <ul class="comparison-list">
+                <li>
+                  <strong>Mensalidades Abusivas:</strong> Softwares comerciais cobram de R$ 400 a R$ 800 todos os meses para sempre (R$ 4.800 a R$ 9.600/ano).
+                </li>
+                <li>
+                  <strong>Taxas Bancárias Extras:</strong> Cobrança de R$ 4,00 a R$ 6,50 por boleto emitido, onerando as 24 unidades sem necessidade.
+                </li>
+                <li>
+                  <strong>Risco de Vazamento na Web:</strong> Dados cadastrais, CPFs e telefones de condôminos armazenados em nuvens de terceiros vulneráveis a ataques.
+                </li>
+                <li>
+                  <strong>Complexidade Excessiva:</strong> Telas burocráticas e complicadas que afastam a diretoria idosa e geram dependência de terceiros.
+                </li>
+                <li>
+                  <strong>Desorganização de Papéis:</strong> Recibos manuais de papel amassados em envelopes e gavetas sem comprovante imediato em 2 vias.
+                </li>
+              </ul>
+            </div>
+
+            <!-- Lado Positivo: Residencial Anhanduí -->
+            <div class="comparison-column comparison-positive">
+              <div class="column-badge badge-pos">✅ Solução Residencial Anhanduí (Blocos G e H)</div>
+              <ul class="comparison-list">
+                <li>
+                  <strong>Custo R$ 0,00 de Licença:</strong> Sistema desenvolvido e doado gratuitamente aos moradores, sem fidelidade ou contratos abusivos.
+                </li>
+                <li>
+                  <strong>Zero Desperdício Bancário:</strong> Fluxo em espécie com Recibo Oficial em 2 vias (via morador + canhoto condomínio) instantâneo em PDF.
+                </li>
+                <li>
+                  <strong>Segurança Máxima 100% Offline:</strong> Roda diretamente no pendrive em SQLite. Zero exposição a ataques ou sequestro digital de dados.
+                </li>
+                <li>
+                  <strong>Simplicidade Pensada para a Terceira Idade:</strong> Botões claros, letras legíveis, operação guiada em 1 clique e 6 meses de apoio presencial.
+                </li>
+                <li>
+                  <strong>Arquivo Físico-Digital Conectado:</strong> Cada recibo ou documento digitalizado informa a pasta e gaveta física exata onde o papel original repousa.
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- 4. PILARES DETALHADOS: PROJETO ABERTO & BACKUPS AUTOMÁTICOS -->
+        <div class="institucional-pillars-grid">
+          <div class="pillar-box">
+            <div class="pillar-header">
+              <span class="pillar-icon">🤝</span>
+              <div>
+                <h3 class="pillar-title">Projeto Comunitário Aberto & Evolução no GitHub</h3>
+                <span class="pillar-subtitle">Código limpo, sustentável e auditável</span>
+              </div>
+            </div>
+            <p class="pillar-text">
+              Este sistema foi desenvolvido como uma iniciativa <strong>open-source comunitária</strong> e de código aberto.
+              Qualquer melhoria, ajuste de regra ou evolução futura pode ser auditada e solicitada de forma transparente no repositório do GitHub.
+            </p>
+            <div class="pillar-highlight-box">
+              💡 <strong>Sustentabilidade Continuada:</strong> Caso o condomínio deseje acompanhamento e suporte técnico contínuo após os 6 meses de implantação, sugere-se uma taxa puramente simbólica de <strong>R$ 200,00 mensais</strong> (cerca de 10 vezes menor que qualquer empresa de TI do mercado).
+            </div>
+          </div>
+
+          <div class="pillar-box">
+            <div class="pillar-header">
+              <span class="pillar-icon">🛡️</span>
+              <div>
+                <h3 class="pillar-title">Salvaguarda Total com Backups Rotativos & Rollback</h3>
+                <span class="pillar-subtitle">Tranquilidade e proteção incondicional aos dados</span>
+              </div>
+            </div>
+            <p class="pillar-text">
+              Para que a diretoria idosa tenha total tranquilidade ao cadastrar ou alterar informações, o sistema gera automaticamente uma <strong>cópia de segurança (backup)</strong> a cada inicialização na pasta <code>data/backups/</code>.
+              Mantém os últimos 3 snapshots rotativos, permitindo reverter qualquer erro operacional com um único clique.
+            </p>
+            <div class="pillar-highlight-box">
+              🔒 <strong>Certidão DND com SHA-256:</strong> Cada Declaração Negativa de Débitos emitida gera um código criptográfico irrevogável para proteção jurídica de compradores e proprietários.
+            </div>
+          </div>
+        </div>
+
+        <!-- 5. PAINEL DOS 3 BACKUPS ROTATIVOS COM TABELA MODERNA -->
+        <div class="backup-panel-card">
+          <div class="backup-panel-header">
+            <div class="backup-header-info">
+              <div class="backup-badge-title">
+                <span class="backup-icon">💾</span>
+                <h4 class="backup-title">Backups Físicos Recentes do Sistema (Últimos 3 Mantidos)</h4>
+              </div>
+              <p class="backup-subtitle">
+                Snapshots salvos automaticamente na pasta física <code>data/backups/</code> do pendrive. Permite restauração instantânea (Rollback).
+              </p>
+            </div>
+            <div class="backup-header-actions">
+              <button class="btn btn-outline btn-sm" (click)="carregarBackups()" data-cy="btn-atualizar-backups">
+                🔄 Atualizar Lista
+              </button>
+              <button class="btn btn-primary btn-sm" (click)="dispararBackupManual()" data-cy="btn-backup-manual">
+                💾 Criar Backup Imediato
+              </button>
+            </div>
+          </div>
+
+          <div class="table-responsive">
+            <table class="table backup-table">
+              <thead>
+                <tr>
+                  <th>Arquivo de Snapshot</th>
+                  <th>Integridade / Status</th>
+                  <th>Tamanho</th>
+                  <th>Data / Hora do Snapshot</th>
+                  <th style="text-align: right;">Ações de Salvaguarda</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let b of backups()" [attr.data-cy]="'item-backup-' + b.nomeArquivo" class="backup-row">
+                  <td>
+                    <div class="backup-file-cell">
+                      <span class="file-icon">📁</span>
+                      <span class="file-name">{{ b.nomeArquivo }}</span>
+                    </div>
+                  </td>
+                  <td>
+                    <span class="badge badge-success" style="font-size: 0.75rem;">🟢 Snapshot Íntegro</span>
+                  </td>
+                  <td>
+                    <span class="backup-size">{{ (b.tamanhoBytes / 1024) | number:'1.0-1' }} KB</span>
+                  </td>
+                  <td>
+                    <span class="backup-date">{{ b.dataCriacao }}</span>
+                  </td>
+                  <td style="text-align: right;">
+                    <button class="btn btn-outline btn-sm btn-rollback"
+                            (click)="restaurarBackup(b.nomeArquivo)"
+                            [attr.data-cy]="'btn-restaurar-' + b.nomeArquivo"
+                            title="Reverter banco de dados para este snapshot">
+                      ⏪ Restaurar (Rollback)
+                    </button>
+                  </td>
+                </tr>
+                <tr *ngIf="backups().length === 0">
+                  <td colspan="5" class="backup-empty-cell">
+                    <div class="empty-state-box">
+                      <span>📁</span>
+                      <p>Nenhum backup arquivado ainda. O sistema cria automaticamente a cada inicialização.</p>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
       </section>
 
     </main>
@@ -1207,22 +1406,22 @@
 
     <div class="form-group">
       <label class="form-label">Valor Recebido em Dinheiro (R$):</label>
-      <input type="number" class="form-control" [(ngModel)]="pagamentoValor">
+      <input type="number" class="form-control" [(ngModel)]="pagamentoValor" data-cy="input-pagamento-valor">
     </div>
 
     <div class="form-group">
       <label class="form-label">Recebido por:</label>
-      <input type="text" class="form-control" [(ngModel)]="pagamentoRecebidoPor">
+      <input type="text" class="form-control" [(ngModel)]="pagamentoRecebidoPor" data-cy="input-pagamento-recebido-por">
     </div>
 
     <div class="form-group">
       <label class="form-label">Observação no Recibo:</label>
-      <input type="text" class="form-control" [(ngModel)]="pagamentoObservacao">
+      <input type="text" class="form-control" [(ngModel)]="pagamentoObservacao" data-cy="input-pagamento-observacao">
     </div>
 
     <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 24px;">
-      <button class="btn btn-outline" (click)="fecharModalPagamento()">Cancelar</button>
-      <button class="btn btn-success" (click)="confirmarPagamentoDinheiro()">
+      <button class="btn btn-outline" (click)="fecharModalPagamento()" data-cy="btn-cancelar-pagamento">Cancelar</button>
+      <button class="btn btn-success" (click)="confirmarPagamentoDinheiro()" data-cy="btn-confirmar-pagamento">
         🖨️ Confirmar e Baixar Recibo (2 Vias)
       </button>
     </div>
@@ -1285,23 +1484,23 @@
       <div>Garagem: <strong>{{ aptoSelecionado?.vagaGaragem }}</strong></div>
     </div>
 
-    <div *ngIf="dndErroMensagem()" style="background: #fef2f2; border: 1px solid #f87171; color: #b91c1c; padding: 12px; border-radius: 6px; margin-bottom: 16px; font-size: 0.875rem;">
+    <div *ngIf="dndErroMensagem()" style="background: #fef2f2; border: 1px solid #f87171; color: #b91c1c; padding: 12px; border-radius: 6px; margin-bottom: 16px; font-size: 0.875rem;" data-cy="dnd-erro-bloqueio">
       {{ dndErroMensagem() }}
     </div>
 
     <div class="form-group">
       <label class="form-label">Nome do Titular Solicitante:</label>
-      <input type="text" class="form-control" [(ngModel)]="dndSolicitante" placeholder="Nome completo para a certidão">
+      <input type="text" class="form-control" [(ngModel)]="dndSolicitante" placeholder="Nome completo para a certidão" data-cy="input-dnd-solicitante">
     </div>
 
     <div class="form-group">
       <label class="form-label">Finalidade / Observação:</label>
-      <input type="text" class="form-control" [(ngModel)]="dndObservacao">
+      <input type="text" class="form-control" [(ngModel)]="dndObservacao" data-cy="input-dnd-observacao">
     </div>
 
     <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 24px;">
-      <button class="btn btn-outline" (click)="modalDndAberto.set(false)">Fechar</button>
-      <button class="btn btn-primary" (click)="confirmarEmissaoDnd()">
+      <button class="btn btn-outline" (click)="modalDndAberto.set(false)" data-cy="btn-fechar-dnd">Fechar</button>
+      <button class="btn btn-primary" (click)="confirmarEmissaoDnd()" data-cy="btn-confirmar-dnd">
         🖨️ Validar e Baixar DND Oficial (PDF)
       </button>
     </div>
