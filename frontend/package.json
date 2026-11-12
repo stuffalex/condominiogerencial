@@ -5,8 +5,13 @@
     "ng": "ng",
     "start": "ng serve",
     "build": "ng build",
+    "build:sync": "ng build && cp -r dist/frontend/browser/* ../backend/src/main/resources/static/",
     "watch": "ng build --watch --configuration development",
-    "test": "ng test"
+    "test": "ng test",
+    "cypress:open": "cypress open",
+    "cypress:run": "cypress run",
+    "cypress:demo": "cypress run --headed --no-exit --browser chrome --spec 'cypress/e2e/apresentacao-video.cy.ts'",
+    "test:e2e": "cypress run --browser chrome --headless"
   },
   "private": true,
   "dependencies": {
@@ -27,6 +32,7 @@
     "@angular/cli": "^18.2.21",
     "@angular/compiler-cli": "^18.2.0",
     "@types/jasmine": "~5.1.0",
+    "cypress": "^13.17.0",
     "jasmine-core": "~5.2.0",
     "karma": "~6.4.0",
     "karma-chrome-launcher": "~3.2.0",

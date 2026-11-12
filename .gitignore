@@ -16,8 +16,13 @@
 .env
 .env.local
 data/*.db
+data/backups/
 data/documentos/*
 !data/documentos/.gitkeep
+
+# Cypress
+**/cypress/screenshots/
+**/cypress/videos/
 
 # System files
 .DS_Store

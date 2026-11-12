@@ -13,8 +13,9 @@ if [ -f .env ]; then
     set +a
 fi
 
-# Garante a existência do diretório de armazenamento
+# Garante a existência dos diretórios locais
 mkdir -p "${CONDO_STORAGE_PATH:-data/documentos}"
+mkdir -p "data/backups"
 
 # Verifica se o Java está disponível
 if ! command -v java &> /dev/null; then

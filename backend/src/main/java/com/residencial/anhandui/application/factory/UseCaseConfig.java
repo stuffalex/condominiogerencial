@@ -70,6 +70,7 @@ public class UseCaseConfig {
     public ApplicationRunner autoInicializadorCondominio(InicializarCondominioPadraoUseCase inicializador) {
         return args -> {
             inicializador.executar();
+            com.residencial.anhandui.infrastructure.adapters.outbound.backup.GerenciadorBackupService.realizarBackupRotativo();
         };
     }
 }
